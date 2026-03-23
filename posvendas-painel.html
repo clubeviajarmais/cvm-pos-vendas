@@ -358,6 +358,12 @@ tr:hover td { background: #fafbfc; }
       <button class="nav-item" onclick="navTo('relatorios')">
         <span class="icon">📈</span> Relatórios
       </button>
+      <button class="nav-item" onclick="navTo('minha_conta')">
+        <span class="icon">🔑</span> Minha Conta
+      </button>
+      <button class="nav-item" id="nav-usuarios" onclick="navTo('usuarios')" style="display:none">
+        <span class="icon">👥</span> Usuários
+      </button>
     </nav>
     <div class="sidebar-user">
       <div class="user-info">
@@ -367,7 +373,8 @@ tr:hover td { background: #fafbfc; }
           <div class="user-role" id="userRole">Admin</div>
         </div>
       </div>
-      <button class="btn-logout" onclick="logout()">Sair do sistema</button>
+      <button class="btn-logout" onclick="navTo('minha_conta')" style="margin-top:8px;width:100%;color:rgba(255,255,255,0.7)">🔑 Alterar senha</button>
+      <button class="btn-logout" onclick="logout()" style="width:100%">Sair do sistema</button>
     </div>
   </div>
 
@@ -576,6 +583,127 @@ tr:hover td { background: #fafbfc; }
         </div>
       </div>
 
+      <!-- ══ MINHA CONTA ══ -->
+      <div class="page" id="page_minha_conta">
+        <div style="max-width:480px">
+          <div class="table-card" style="margin-bottom:16px">
+            <div class="table-header">
+              <div>
+                <div class="table-title">🔑 Alterar Minha Senha</div>
+                <div style="font-size:11.5px;color:var(--texto-leve);margin-top:2px">Somente você tem acesso a esta alteração</div>
+              </div>
+            </div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Usuário</label>
+                <div style="font-size:14px;font-weight:700;color:var(--azul)" id="conta-usuario-nome">—</div>
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Senha Atual <span style="color:var(--erro)">*</span></label>
+                <input type="password" id="senha-atual" placeholder="Digite sua senha atual"
+                  style="width:100%;padding:11px 14px;border:1.5px solid var(--borda);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none"
+                  onfocus="this.style.borderColor='var(--azul-medio)'" onblur="this.style.borderColor='var(--borda)'" />
+                <span id="err-senha-atual" style="font-size:11.5px;color:var(--erro);display:none;margin-top:4px">Senha atual incorreta</span>
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Nova Senha <span style="color:var(--erro)">*</span></label>
+                <input type="password" id="senha-nova" placeholder="Mínimo 6 caracteres"
+                  style="width:100%;padding:11px 14px;border:1.5px solid var(--borda);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none"
+                  onfocus="this.style.borderColor='var(--azul-medio)'" onblur="this.style.borderColor='var(--borda)'" oninput="checkForca()" />
+                <div id="forca-senha" style="margin-top:6px;display:none">
+                  <div style="display:flex;gap:4px;margin-bottom:3px">
+                    <div id="f1" style="flex:1;height:4px;border-radius:2px;background:var(--borda)"></div>
+                    <div id="f2" style="flex:1;height:4px;border-radius:2px;background:var(--borda)"></div>
+                    <div id="f3" style="flex:1;height:4px;border-radius:2px;background:var(--borda)"></div>
+                    <div id="f4" style="flex:1;height:4px;border-radius:2px;background:var(--borda)"></div>
+                  </div>
+                  <div id="forca-label" style="font-size:11px;color:var(--texto-leve)"></div>
+                </div>
+                <span id="err-senha-nova" style="font-size:11.5px;color:var(--erro);display:none;margin-top:4px">Mínimo 6 caracteres</span>
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:600;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Confirmar Nova Senha <span style="color:var(--erro)">*</span></label>
+                <input type="password" id="senha-confirma" placeholder="Repita a nova senha"
+                  style="width:100%;padding:11px 14px;border:1.5px solid var(--borda);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none"
+                  onfocus="this.style.borderColor='var(--azul-medio)'" onblur="this.style.borderColor='var(--borda)'" />
+                <span id="err-senha-confirma" style="font-size:11.5px;color:var(--erro);display:none;margin-top:4px">As senhas não coincidem</span>
+              </div>
+              <button class="btn-primary" onclick="alterarSenha()" style="width:100%;justify-content:center;padding:13px">
+                🔒 Salvar Nova Senha
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ USUÁRIOS (nível 2+) ══ -->
+      <div class="page" id="page_usuarios">
+        <div class="emb-alert blue" style="margin-bottom:16px">
+          <span style="font-size:18px">ℹ️</span>
+          <div>
+            <div class="emb-alert-title">Gerenciamento de Usuários</div>
+            <div class="emb-alert-sub">Apenas usuários de nível 2 ou superior podem criar, editar e excluir acessos.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:260px">
+            <div class="table-card">
+              <div class="table-header"><div class="table-title">➕ Novo Usuário</div></div>
+              <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--texto-leve);display:block;margin-bottom:4px">Nome completo</label>
+                    <input type="text" id="novo-nome" placeholder="Ex: Carla Santos"
+                      style="width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none" />
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--texto-leve);display:block;margin-bottom:4px">Login (usuário)</label>
+                    <input type="text" id="novo-login" placeholder="Ex: carla"
+                      style="width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none" />
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--texto-leve);display:block;margin-bottom:4px">Senha inicial</label>
+                    <input type="text" id="novo-senha" placeholder="Ex: cvm123"
+                      style="width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none" />
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--texto-leve);display:block;margin-bottom:4px">Cargo / Role</label>
+                    <input type="text" id="novo-role" placeholder="Ex: Pós-Venda"
+                      style="width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none" />
+                  </div>
+                  <div style="grid-column:1/-1">
+                    <label style="font-size:11px;font-weight:600;color:var(--texto-leve);display:block;margin-bottom:4px">Nível de Acesso</label>
+                    <select id="novo-nivel" style="width:100%;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none">
+                      <option value="1">Nível 1 — Operacional (visualiza e registra ações)</option>
+                      <option value="2">Nível 2 — Sênior (altera status, aprova casos)</option>
+                      <option value="3">Nível 3 — Admin (acesso total)</option>
+                    </select>
+                  </div>
+                </div>
+                <span id="err-novo-user" style="font-size:11.5px;color:var(--erro);display:none">Preencha todos os campos</span>
+                <button class="btn-primary" onclick="criarUsuario()" style="justify-content:center">➕ Criar Usuário</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <div class="table-title">👥 Usuários Cadastrados</div>
+            <div style="font-size:11.5px;color:var(--texto-leve)" id="usuarios-count"></div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuário</th><th>Nome</th><th>Cargo</th><th>Nível</th><th>Senha</th><th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="usuarios-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -716,13 +844,19 @@ const TIPOS={
 async function fazerLogin(){
   const user=document.getElementById('loginUser').value.toLowerCase().trim();
   const pass=document.getElementById('loginPass').value;
-  if(USUARIOS[user]&&USUARIOS[user].senha===pass){
-    usuarioAtual={login:user,...USUARIOS[user]};
+  const bd = getUsuariosBD();
+  if(bd[user] && bd[user].senha === pass){
+    usuarioAtual={login:user,...bd[user]};
     document.getElementById('loginOverlay').style.display='none';
     document.getElementById('app').style.display='flex';
     document.getElementById('userNome').textContent=usuarioAtual.nome;
     document.getElementById('userRole').textContent=usuarioAtual.role;
     document.getElementById('userInitial').textContent=usuarioAtual.nome[0];
+    // Mostrar menu Usuários para nível 2+
+    if(usuarioAtual.nivel >= 2) {
+      document.getElementById('nav-usuarios').style.display = 'flex';
+    }
+    initUsuarios();
     await renderDashboard();
     await atualizarBadges();
     renderEmbBadges();
@@ -736,6 +870,7 @@ function logout(){
   document.getElementById('app').style.display='none';
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
+  document.getElementById('nav-usuarios').style.display='none';
 }
 // ─── SUPABASE ─────────────────────────────────────────────────
 const CVM_SB_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
@@ -795,6 +930,8 @@ const PAGE_TITLES={
   emb_checklist:['Embarques – Checklist','Tarefas de pré-embarque por cliente'],
   emb_internacionais:['Embarques – Internacionais','Documentação e checklist especial'],
   emb_upsell:['Embarques – UPSell','Oportunidades de seguro e estacionamento'],
+  minha_conta:['Minha Conta','Altere sua senha de acesso'],
+  usuarios:['Gerenciar Usuários','Cadastre, edite e remova acessos'],
 };
 
 function navTo(page){
@@ -815,6 +952,8 @@ function navTo(page){
   if(page==='emb_checklist') renderChecklist();
   if(page==='emb_internacionais') renderInternacionais();
   if(page==='emb_upsell') renderUpsell();
+  if(page==='minha_conta') renderMinhaConta();
+  if(page==='usuarios') renderUsuarios();
 }
 function navToFiltro(u){
   navTo('solicitacoes'); filtroUrgencia=u;
@@ -1339,6 +1478,224 @@ function initDemoData(){
     {protocolo:'CVM2024-33210',status:'aguardando_fornecedor',tipo_solicitacao:'alteracao_voo',urgencia:'media',nome_contratante:'Carla Mendes',cpf_contratante:'456.789.123-00',data_nascimento:'1990-11-05',whatsapp:'(31) 97777-9012',email:'carla@email.com',localizador:'DEF456',data_embarque:'2026-04-20',destino:'Gramado',descricao:'A Azul alterou meu voo direto para voo com conexão. Não aceito.',consultor:'Rafaela',viajantes:[{nome:'Carla Mendes'}],created_at:new Date(Date.now()-172800000).toISOString(),prazo_resposta:new Date(Date.now()+86400000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-172800000).toISOString()},{acao:'Protocolo Azul nº AZ-987654 aberto. Aguardando retorno em 48h.',usuario:'Ana Beatriz',data:new Date(Date.now()-100000000).toISOString()}])},
     {protocolo:'CVM2024-44567',status:'resolvido',tipo_solicitacao:'segunda_via',urgencia:'baixa',nome_contratante:'Pedro Costa',cpf_contratante:'321.654.987-00',data_nascimento:'1995-02-28',whatsapp:'(31) 96666-3456',email:'pedro@email.com',localizador:'GHI101',data_embarque:'2026-05-15',destino:'Buenos Aires',descricao:'Não recebi o boleto por email. Preciso de segunda via.',consultor:'Caio',viajantes:[{nome:'Pedro Costa'}],created_at:new Date(Date.now()-259200000).toISOString(),prazo_resposta:new Date(Date.now()+259200000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-259200000).toISOString()},{acao:'Boleto reenviado para pedro@email.com',usuario:'Eduarda',data:new Date(Date.now()-250000000).toISOString()}])},
   ]);
+}
+
+// ═══════════════════════════════════════════════
+// MÓDULO: MINHA CONTA E GESTÃO DE USUÁRIOS
+// ═══════════════════════════════════════════════
+
+// Usuários ficam no localStorage (senhas não vão para o Supabase por segurança)
+function getUsuariosBD() {
+  const def = {
+    'rafael':  { senha:'cvm2024',  nome:'Rafael',       role:'Admin',                  nivel:3 },
+    'rafaela': { senha:'rafa123',  nome:'Rafaela',       role:'Gerente Comercial',      nivel:2 },
+    'ana':     { senha:'ana123',   nome:'Ana Beatriz',   role:'Pós-Venda Sênior',       nivel:2 },
+    'eduarda': { senha:'edu123',   nome:'Eduarda',       role:'Pós-Venda Operacional',  nivel:1 },
+  };
+  try {
+    const salvo = JSON.parse(localStorage.getItem('cvm_usuarios') || 'null');
+    return salvo || def;
+  } catch { return def; }
+}
+
+function salvarUsuariosBD(u) {
+  localStorage.setItem('cvm_usuarios', JSON.stringify(u));
+  // Sincronizar com USUARIOS em memória
+  Object.assign(USUARIOS, u);
+}
+
+// Inicializar USUARIOS do localStorage ao carregar
+function initUsuarios() {
+  const bd = getUsuariosBD();
+  Object.keys(bd).forEach(k => { USUARIOS[k] = bd[k]; });
+}
+
+// ── MINHA CONTA ──
+function renderMinhaConta() {
+  document.getElementById('conta-usuario-nome').textContent =
+    `${usuarioAtual.nome} (${usuarioAtual.login}) — ${usuarioAtual.role}`;
+  // Limpar campos
+  ['senha-atual','senha-nova','senha-confirma'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  ['err-senha-atual','err-senha-nova','err-senha-confirma','forca-senha'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+function checkForca() {
+  const v = document.getElementById('senha-nova').value;
+  const el = document.getElementById('forca-senha');
+  const label = document.getElementById('forca-label');
+  if (!v) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  let score = 0;
+  if (v.length >= 6)  score++;
+  if (v.length >= 10) score++;
+  if (/[A-Z]/.test(v) || /[0-9]/.test(v)) score++;
+  if (/[^a-zA-Z0-9]/.test(v)) score++;
+  const cores = ['#ef4444','#f97316','#eab308','#22c55e'];
+  const labels = ['Muito fraca','Fraca','Boa','Forte'];
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('f'+i).style.background = i <= score ? cores[score-1] : 'var(--borda)';
+  }
+  label.textContent = labels[score-1] || '';
+  label.style.color = cores[score-1] || 'var(--texto-leve)';
+}
+
+function alterarSenha() {
+  const atual   = document.getElementById('senha-atual').value;
+  const nova    = document.getElementById('senha-nova').value;
+  const confirma = document.getElementById('senha-confirma').value;
+  let ok = true;
+
+  // Validar senha atual
+  const bd = getUsuariosBD();
+  if (!bd[usuarioAtual.login] || bd[usuarioAtual.login].senha !== atual) {
+    document.getElementById('err-senha-atual').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-senha-atual').style.display = 'none';
+  }
+
+  // Validar nova senha
+  if (nova.length < 6) {
+    document.getElementById('err-senha-nova').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-senha-nova').style.display = 'none';
+  }
+
+  // Validar confirmação
+  if (nova !== confirma) {
+    document.getElementById('err-senha-confirma').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-senha-confirma').style.display = 'none';
+  }
+
+  if (!ok) return;
+
+  // Salvar
+  bd[usuarioAtual.login].senha = nova;
+  salvarUsuariosBD(bd);
+  usuarioAtual.senha = nova;
+  mostrarToast('✅ Senha alterada com sucesso!');
+  ['senha-atual','senha-nova','senha-confirma'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('forca-senha').style.display = 'none';
+}
+
+// ── GESTÃO DE USUÁRIOS ──
+const NIVEL_LABELS = { 1:'🟡 Operacional', 2:'🟠 Sênior', 3:'🔴 Admin' };
+
+function renderUsuarios() {
+  const bd = getUsuariosBD();
+  const lista = Object.entries(bd);
+  document.getElementById('usuarios-count').textContent = `${lista.length} usuário${lista.length!==1?'s':''}`;
+
+  document.getElementById('usuarios-tbody').innerHTML = lista.map(([login, u]) => {
+    const ehAtual = login === usuarioAtual.login;
+    const podeEditar = usuarioAtual.nivel >= 2;
+    const podeExcluir = podeEditar && !ehAtual && u.nivel < usuarioAtual.nivel;
+    return `<tr>
+      <td class="col-protocolo">${login}${ehAtual ? ' <span class="pill pill-blue" style="font-size:9px">Você</span>' : ''}</td>
+      <td style="font-weight:600">${u.nome}</td>
+      <td style="color:var(--texto-leve);font-size:12px">${u.role}</td>
+      <td><span class="pill ${u.nivel===3?'pill-red':u.nivel===2?'pill-orange':'pill-yellow'}">${NIVEL_LABELS[u.nivel]||u.nivel}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="password" id="pw-${login}" value="${u.senha}"
+            style="width:110px;padding:5px 9px;border:1.5px solid var(--borda);border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none"
+            ${!podeEditar?'disabled':''} />
+          ${podeEditar ? `<button class="btn-ver" onclick="salvarSenhaAdmin('${login}')">💾</button>` : ''}
+        </div>
+      </td>
+      <td>
+        <div style="display:flex;gap:6px">
+          ${podeEditar ? `<button class="btn-ver" onclick="editarNivel('${login}',${u.nivel})">✏️ Nível</button>` : ''}
+          ${podeExcluir ? `<button class="btn-ver" style="color:var(--erro)" onclick="excluirUsuario('${login}','${u.nome}')">🗑️</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function criarUsuario() {
+  const nome   = document.getElementById('novo-nome').value.trim();
+  const login  = document.getElementById('novo-login').value.trim().toLowerCase();
+  const senha  = document.getElementById('novo-senha').value.trim();
+  const role   = document.getElementById('novo-role').value.trim();
+  const nivel  = parseInt(document.getElementById('novo-nivel').value);
+  const errEl  = document.getElementById('err-novo-user');
+
+  if (!nome || !login || !senha || !role) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Preencha todos os campos.';
+    return;
+  }
+
+  const bd = getUsuariosBD();
+  if (bd[login]) {
+    errEl.style.display = 'block';
+    errEl.textContent = `O login "${login}" já existe.`;
+    return;
+  }
+
+  // Impedir criar usuário com nível maior que o próprio
+  if (nivel > usuarioAtual.nivel) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Você não pode criar um usuário com nível maior que o seu.';
+    return;
+  }
+
+  errEl.style.display = 'none';
+  bd[login] = { senha, nome, role, nivel };
+  salvarUsuariosBD(bd);
+  ['novo-nome','novo-login','novo-senha','novo-role'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  mostrarToast(`✅ Usuário "${nome}" criado!`);
+  renderUsuarios();
+}
+
+function salvarSenhaAdmin(login) {
+  const novaSenha = document.getElementById(`pw-${login}`)?.value?.trim();
+  if (!novaSenha || novaSenha.length < 4) {
+    mostrarToast('Senha muito curta (mín. 4 caracteres).');
+    return;
+  }
+  const bd = getUsuariosBD();
+  if (!bd[login]) return;
+  bd[login].senha = novaSenha;
+  salvarUsuariosBD(bd);
+  mostrarToast(`✅ Senha de ${bd[login].nome} atualizada!`);
+}
+
+function editarNivel(login, nivelAtual) {
+  const opcoes = [1,2,3].filter(n => n <= usuarioAtual.nivel && n !== nivelAtual);
+  if (!opcoes.length) { mostrarToast('Não é possível alterar este nível.'); return; }
+  const labels = { 1:'Operacional', 2:'Sênior', 3:'Admin' };
+  const escolha = prompt(
+    `Alterar nível de acesso de "${login}".\nNível atual: ${labels[nivelAtual]}\n\nDigite o novo nível:\n${opcoes.map(n => `${n} = ${labels[n]}`).join('\n')}`
+  );
+  const novo = parseInt(escolha);
+  if (!opcoes.includes(novo)) { mostrarToast('Nível inválido.'); return; }
+  const bd = getUsuariosBD();
+  bd[login].nivel = novo;
+  salvarUsuariosBD(bd);
+  mostrarToast(`✅ Nível de ${bd[login].nome} alterado para ${labels[novo]}!`);
+  renderUsuarios();
+}
+
+function excluirUsuario(login, nome) {
+  if (!confirm(`Tem certeza que deseja excluir o usuário "${nome}" (${login})?\nEsta ação não pode ser desfeita.`)) return;
+  const bd = getUsuariosBD();
+  delete bd[login];
+  salvarUsuariosBD(bd);
+  mostrarToast(`✅ Usuário "${nome}" removido.`);
+  renderUsuarios();
 }
 
 verificarExpedientePainel();
