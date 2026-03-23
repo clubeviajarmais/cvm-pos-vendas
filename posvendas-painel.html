@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel Pós-Venda | CVM</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --azul: #0a3d6b;
@@ -712,7 +713,7 @@ const TIPOS={
   marcacao_assento:'Marcação de Assento',outro:'Outro',
 };
 
-function fazerLogin(){
+async function fazerLogin(){
   const user=document.getElementById('loginUser').value.toLowerCase().trim();
   const pass=document.getElementById('loginPass').value;
   if(USUARIOS[user]&&USUARIOS[user].senha===pass){
@@ -722,9 +723,8 @@ function fazerLogin(){
     document.getElementById('userNome').textContent=usuarioAtual.nome;
     document.getElementById('userRole').textContent=usuarioAtual.role;
     document.getElementById('userInitial').textContent=usuarioAtual.nome[0];
-    initDemoData();
-    renderDashboard();
-    atualizarBadges();
+    await renderDashboard();
+    await atualizarBadges();
     renderEmbBadges();
   } else {
     document.getElementById('loginError').style.display='block';
@@ -737,8 +737,45 @@ function logout(){
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
 }
-function getDados(){return JSON.parse(localStorage.getItem('cvm_solicitacoes')||'[]');}
-function salvarDados(d){localStorage.setItem('cvm_solicitacoes',JSON.stringify(d));}
+// ─── SUPABASE ─────────────────────────────────────────────────
+const SUPABASE_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
+const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Cache local para performance
+let _cacheData = null;
+let _cacheTs = 0;
+
+async function getDados(forceRefresh = false) {
+  if (!forceRefresh && _cacheData && (Date.now() - _cacheTs < 15000)) return _cacheData;
+  const { data, error } = await _sb.from('solicitacoes').select('*').order('created_at', { ascending: false });
+  if (error) { console.error('Erro ao buscar dados:', error); return _cacheData || []; }
+  // Normalizar campos jsonb
+  _cacheData = (data || []).map(d => ({
+    ...d,
+    viajantes: Array.isArray(d.viajantes) ? d.viajantes : (typeof d.viajantes === 'string' ? JSON.parse(d.viajantes || '[]') : []),
+    historico: Array.isArray(d.historico) ? JSON.stringify(d.historico) : (d.historico || '[]'),
+  }));
+  _cacheTs = Date.now();
+  return _cacheData;
+}
+
+async function salvarDados(dados) {
+  // Não usado diretamente — usamos upsertCaso para salvar individualmente
+  _cacheData = dados;
+}
+
+async function upsertCaso(caso) {
+  const payload = {
+    ...caso,
+    viajantes: typeof caso.viajantes === 'string' ? JSON.parse(caso.viajantes || '[]') : (caso.viajantes || []),
+    historico: typeof caso.historico === 'string' ? JSON.parse(caso.historico || '[]') : (caso.historico || []),
+  };
+  const { error } = await _sb.from('solicitacoes').upsert([payload], { onConflict: 'protocolo' });
+  if (error) { console.error('Erro ao salvar:', error); mostrarToast('Erro ao salvar. Tente novamente.'); return false; }
+  _cacheData = null; // invalidar cache
+  return true;
+}
 
 const PAGE_TITLES={
   dashboard:['Dashboard','Visão geral do pós-venda'],
@@ -776,8 +813,8 @@ function navToFiltro(u){
   renderTabela();
 }
 
-function calcKPIs(){
-  const d=getDados(),hoje=new Date();
+async function calcKPIs(){
+  const d=await getDados(),hoje=new Date();
   return{
     abertos:d.filter(x=>x.status==='aberto').length,
     urgentes:d.filter(x=>x.urgencia==='alta'&&x.status!=='resolvido').length,
@@ -788,8 +825,8 @@ function calcKPIs(){
   };
 }
 
-function renderDashboard(){
-  const k=calcKPIs(),dados=getDados();
+async function renderDashboard(){
+  const k=await calcKPIs(),dados=await getDados();
   document.getElementById('kpiGrid').innerHTML=`
     <div class="kpi-card azul"><div class="kpi-label">Total de Casos</div><div class="kpi-valor">${k.total}</div><div class="kpi-sub">desde o início</div></div>
     <div class="kpi-card laranja"><div class="kpi-label">Em Aberto</div><div class="kpi-valor">${k.abertos}</div><div class="kpi-sub">aguardando atendimento</div></div>
@@ -802,14 +839,14 @@ function renderDashboard(){
   `;
   const urgentes=dados.filter(d=>d.status!=='resolvido').sort((a,b)=>({alta:0,media:1,baixa:2}[a.urgencia]||1)-({alta:0,media:1,baixa:2}[b.urgencia]||1)).slice(0,8);
   document.getElementById('tabelaUrgentes').innerHTML=renderTabelaHTML(urgentes);
-  atualizarBadges();
+  await atualizarBadges();
 }
 
 function setFiltro(s,btn){filtroStatus=s;filtroUrgencia=null;document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTabela();}
 function setUrgencia(u,btn){filtroUrgencia=filtroUrgencia===u?null:u;document.querySelectorAll('.filtro-urgencia-alta').forEach(b=>b.classList.toggle('active',!!filtroUrgencia));renderTabela();}
 
-function renderTabela(){
-  let d=getDados();
+async function renderTabela(){
+  let d=await getDados(true);
   const b=(document.getElementById('searchInput')?.value||'').toLowerCase();
   if(filtroStatus!=='todos')d=d.filter(x=>x.status===filtroStatus);
   if(filtroUrgencia)d=d.filter(x=>x.urgencia===filtroUrgencia);
@@ -836,8 +873,8 @@ function renderTabelaHTML(dados){
 
 function statusLabel(s){return{aberto:'● Aberto',em_andamento:'● Em Andamento',aguardando_fornecedor:'● Aguard. Fornecedor',resolvido:'✓ Resolvido',cancelado:'✕ Cancelado'}[s]||s;}
 
-function abrirModal(protocolo){
-  const dados=getDados(),caso=dados.find(d=>d.protocolo===protocolo);
+async function abrirModal(protocolo){
+  const dados=await getDados(),caso=dados.find(d=>d.protocolo===protocolo);
   if(!caso)return;
   const hist=JSON.parse(caso.historico||'[]');
   const histHTML=hist.map(h=>`<div class="hist-item"><div class="hist-dot ${h.usuario}"></div><div class="hist-content"><div class="hist-acao">${h.acao}</div><div class="hist-meta"><strong>${h.usuario}</strong> • ${new Date(h.data).toLocaleString('pt-BR')}</div></div></div>`).join('');
@@ -895,36 +932,32 @@ function abrirModal(protocolo){
 
 function fecharModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
 
-function mudarStatus(protocolo,novoStatus){
-  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===protocolo);
-  if(idx===-1)return;
-  dados[idx].status=novoStatus;
-  const hist=JSON.parse(dados[idx].historico||'[]');
+async function mudarStatus(protocolo,novoStatus){
+  const dados=await getDados(),caso=dados.find(d=>d.protocolo===protocolo);
+  if(!caso)return;
+  caso.status=novoStatus;
+  const hist=typeof caso.historico==='string'?JSON.parse(caso.historico||'[]'):caso.historico||[];
   hist.push({acao:`Status alterado para: ${statusLabel(novoStatus)}`,usuario:usuarioAtual.nome,data:new Date().toISOString()});
-  dados[idx].historico=JSON.stringify(hist);
-  salvarDados(dados);
-  mostrarToast('Status atualizado!');
-  abrirModal(protocolo);
-  atualizarBadges();
-  if(document.getElementById('page_dashboard').classList.contains('active'))renderDashboard();
+  caso.historico=JSON.stringify(hist);
+  const ok=await upsertCaso(caso);
+  if(ok){mostrarToast('Status atualizado!');await abrirModal(protocolo);await atualizarBadges();if(document.getElementById('page_dashboard').classList.contains('active'))await renderDashboard();}
 }
 
-function adicionarAcao(protocolo){
+async function adicionarAcao(protocolo){
   const texto=document.getElementById('novaAcao').value.trim();
   const tipo=document.getElementById('tipoAcaoUser').value;
   if(!texto)return;
-  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===protocolo);
-  if(idx===-1)return;
-  const hist=JSON.parse(dados[idx].historico||'[]');
+  const dados=await getDados(),caso=dados.find(d=>d.protocolo===protocolo);
+  if(!caso)return;
+  const hist=typeof caso.historico==='string'?JSON.parse(caso.historico||'[]'):caso.historico||[];
   hist.push({acao:texto,usuario:tipo==='equipe'?usuarioAtual.nome:tipo,data:new Date().toISOString()});
-  dados[idx].historico=JSON.stringify(hist);
-  salvarDados(dados);
-  mostrarToast('Ação registrada!');
-  abrirModal(protocolo);
+  caso.historico=JSON.stringify(hist);
+  const ok=await upsertCaso(caso);
+  if(ok){mostrarToast('Ação registrada!');await abrirModal(protocolo);}
 }
 
-function renderRelatorios(){
-  const dados=getDados(),k=calcKPIs(),total=dados.length||1;
+async function renderRelatorios(){
+  const dados=await getDados(true),k=await calcKPIs(),total=dados.length||1;
   document.getElementById('kpiRelatorios').innerHTML=`
     <div class="kpi-card azul"><div class="kpi-label">Total de Casos</div><div class="kpi-valor">${total}</div></div>
     <div class="kpi-card verde"><div class="kpi-label">Taxa de Resolução</div><div class="kpi-valor">${total>1?Math.round((k.resolvidos/total)*100):0}%</div></div>
@@ -938,19 +971,20 @@ function renderRelatorios(){
   document.getElementById('tabelaTipos').innerHTML=rows?`<div class="tbl-wrap"><table><thead><tr><th>Tipo</th><th>Qtd</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Sem dados</div></div>`;
 }
 
-function atualizarBadges(){
-  const d=getDados();
+async function atualizarBadges(){
+  const d=await getDados();
   document.getElementById('badgeAbertos').textContent=d.filter(x=>x.status==='aberto').length;
   document.getElementById('badgeUrgente').textContent=d.filter(x=>x.urgencia==='alta'&&x.status!=='resolvido').length;
 }
 
-function salvarTaxa(p){
-  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===p);
-  if(idx===-1)return;
+async function salvarTaxa(p){
+  const dados=await getDados(),caso=dados.find(d=>d.protocolo===p);
+  if(!caso)return;
   const t=document.getElementById('taxaTipo')?.value,v=document.getElementById('taxaValor')?.value;
-  if(t!==undefined)dados[idx].taxa_tipo=t;
-  if(v!==undefined)dados[idx].taxa_valor=v;
-  salvarDados(dados);mostrarToast('Taxa atualizada!');
+  if(t!==undefined)caso.taxa_tipo=t;
+  if(v!==undefined)caso.taxa_valor=v;
+  await upsertCaso(caso);
+  mostrarToast('Taxa atualizada!');
 }
 
 function mostrarToast(msg){
