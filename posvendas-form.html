@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pós-Venda | Clube Viajar Mais</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --azul: #0a3d6b;
+    --azul-medio: #1565a8;
+    --azul-claro: #e8f2fc;
+    --laranja: #f47c20;
+    --laranja-claro: #fff3e8;
+    --cinza: #f5f6f8;
+    --texto: #1a1a2e;
+    --texto-leve: #6b7280;
+    --borda: #e2e8f0;
+    --branco: #ffffff;
+    --sucesso: #10b981;
+    --erro: #ef4444;
+    --alerta: #f59e0b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f8;
+    min-height: 100vh;
+    color: var(--texto);
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--azul);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(10,61,107,0.3);
+  }
+  .header-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    background: var(--laranja);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+  }
+  .header-text p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-medio) 100%);
+    padding: 48px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    background: rgba(244,124,32,0.1);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .hero h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero p {
+    color: rgba(255,255,255,0.75);
+    font-size: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(244,124,32,0.2);
+    border: 1px solid rgba(244,124,32,0.4);
+    color: #fbbf6e;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* CONTAINER */
+  .container {
+    max-width: 800px;
+    margin: -24px auto 40px;
+    padding: 0 16px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(10,61,107,0.1);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--borda);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .icon-azul { background: var(--azul-claro); }
+  .icon-laranja { background: var(--laranja-claro); }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--azul);
+  }
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--texto-leve);
+    margin-top: 2px;
+  }
+  .card-body { padding: 24px 28px; }
+
+  /* LGPD BANNER */
+  .lgpd-banner {
+    background: var(--azul-claro);
+    border: 1px solid #c3d9f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  .lgpd-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .lgpd-text { font-size: 13px; color: var(--azul); line-height: 1.5; }
+  .lgpd-text strong { font-weight: 600; }
+
+  /* FORM */
+  .form-row { display: grid; gap: 16px; margin-bottom: 16px; }
+  .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 600px) {
+    .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+  }
+  .form-label .required { color: var(--laranja); margin-left: 2px; }
+  .form-label .tag {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--texto-leve);
+    background: var(--cinza);
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-left: 6px;
+  }
+
+  input, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    border: 1.5px solid var(--borda);
+    border-radius: 10px;
+    color: var(--texto);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    outline: none;
+    appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--azul-medio);
+    box-shadow: 0 0 0 3px rgba(21,101,168,0.1);
+  }
+  input::placeholder, textarea::placeholder { color: #adb5bd; }
+  textarea { resize: vertical; min-height: 100px; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+
+  /* TIPO SOLICITAÇÃO */
+  .tipos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .tipo-option { display: none; }
+  .tipo-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--borda);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+    background: white;
+  }
+  .tipo-label:hover { border-color: var(--azul-medio); background: var(--azul-claro); }
+  .tipo-option:checked + .tipo-label {
+    border-color: var(--azul-medio);
+    background: var(--azul-claro);
+    color: var(--azul);
+  }
+  .tipo-emoji { font-size: 20px; }
+  .tipo-info { display: flex; flex-direction: column; gap: 2px; }
+  .tipo-nome { font-weight: 600; font-size: 13px; }
+  .tipo-desc { font-size: 11px; color: var(--texto-leve); font-weight: 400; }
+
+  /* URGÊNCIA */
+  .urgencia-options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .urgencia-radio { display: none; }
+  .urgencia-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1.5px solid var(--borda);
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .urgencia-radio:checked + .urgencia-label { border-color: currentColor; }
+  .u-baixa { color: var(--sucesso); }
+  .u-media { color: var(--alerta); }
+  .u-alta { color: var(--erro); }
+  .u-baixa.checked, .urgencia-radio:checked + .u-baixa { background: #f0fdf4; border-color: var(--sucesso); }
+  .u-media.checked, .urgencia-radio:checked + .u-media { background: #fffbeb; border-color: var(--alerta); }
+  .u-alta.checked, .urgencia-radio:checked + .u-alta { background: #fef2f2; border-color: var(--erro); }
+
+  /* VIAJANTES */
+  .viajantes-section {
+    background: var(--cinza);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+  .viajantes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .viajantes-title { font-size: 13px; font-weight: 600; color: var(--texto); }
+  .btn-add-viajante {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--azul-medio);
+    background: white;
+    border: 1.5px solid var(--azul-medio);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-add-viajante:hover { background: var(--azul-claro); }
+  .viajante-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: end;
+  }
+  .btn-remove {
+    width: 36px;
+    height: 36px;
+    background: #fee2e2;
+    border: none;
+    border-radius: 8px;
+    color: var(--erro);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+    margin-bottom: 2px;
+  }
+  .btn-remove:hover { background: #fecaca; }
+
+  /* CHECKBOX */
+  .checkbox-group { display: flex; align-items: flex-start; gap: 10px; }
+  .checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    accent-color: var(--azul-medio);
+    cursor: pointer;
+  }
+  .checkbox-label { font-size: 13px; line-height: 1.5; color: var(--texto); cursor: pointer; }
+  .checkbox-label a { color: var(--azul-medio); text-decoration: underline; }
+
+  /* BOTÃO SUBMIT */
+  .btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--laranja) 0%, #e06a10 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(244,124,32,0.4);
+    margin-top: 8px;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,124,32,0.5); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+  /* NOTA RODAPÉ */
+  .form-footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--texto-leve);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  /* SEPARADOR */
+  .separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .separator-line { flex: 1; height: 1px; background: var(--borda); }
+  .separator-text { font-size: 12px; color: var(--texto-leve); font-weight: 500; white-space: nowrap; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 48px 32px;
+  }
+  .success-screen.visible { display: block; }
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 24px rgba(16,185,129,0.3);
+  }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--azul);
+    margin-bottom: 8px;
+  }
+  .success-sub { font-size: 15px; color: var(--texto-leve); margin-bottom: 24px; line-height: 1.6; }
+  .protocolo-box {
+    background: var(--azul-claro);
+    border: 2px dashed var(--azul-medio);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px auto;
+    max-width: 360px;
+  }
+  .protocolo-label { font-size: 12px; color: var(--texto-leve); margin-bottom: 6px; }
+  .protocolo-numero {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--azul);
+    letter-spacing: 3px;
+  }
+  .protocolo-info { font-size: 12px; color: var(--azul-medio); margin-top: 6px; }
+  .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+  .btn-secondary {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1.5px solid var(--borda);
+    background: white;
+    color: var(--texto);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--azul-medio); background: var(--azul-claro); }
+
+  /* HORÁRIO BANNER */
+  .horario-banner {
+    background: linear-gradient(135deg, #0f2a4a 0%, var(--azul) 100%);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .horario-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .horario-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: white; margin-bottom: 6px; }
+  .horario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+  .horario-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,0.8); }
+  .horario-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--laranja); flex-shrink: 0; }
+  .horario-obs { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 8px; line-height: 1.5; }
+
+  /* FORA DO EXPEDIENTE */
+  .fora-expediente {
+    background: #1a0a00;
+    border: 1px solid rgba(244,124,32,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .fora-expediente .icon { font-size: 36px; margin-bottom: 12px; }
+  .fora-expediente h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--laranja); margin-bottom: 8px; }
+  .fora-expediente p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .fora-expediente .proximo { background: rgba(244,124,32,0.15); border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; color: var(--laranja); font-weight: 600; }
+
+  /* STATUS EXPEDIENTE NO HEADER */
+  .expediente-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+  .expediente-pill.aberto { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+  .expediente-pill.fechado { background: rgba(244,124,32,0.2); color: #fbbf6e; }
+  .expediente-pulse { width: 6px; height: 6px; border-radius: 50%; animation: pulse 1.5s infinite; }
+  .aberto .expediente-pulse { background: #6ee7b7; }
+  .fechado .expediente-pulse { background: #fbbf6e; animation: none; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+  /* LOADING */
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* FIELD ERROR */
+  .field-error { font-size: 12px; color: var(--erro); display: none; margin-top: 4px; }
+  .field-error.visible { display: block; }
+  input.error, select.error, textarea.error { border-color: var(--erro); }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--azul);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--azul-claro);
+  }
+
+  /* DETALHES SOLICITAÇÃO */
+  .detalhe-campo { display: none; }
+  .detalhe-campo.ativo { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-mark">VM</div>
+    <div class="header-text">
+      <h1>Clube Viajar Mais</h1>
+      <p>Central de Pós-Venda</p>
+    </div>
+    <div class="expediente-pill" id="expedientePill">
+      <div class="expediente-pulse"></div>
+      <span id="expedienteText">Verificando...</span>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">✈️ Atendimento Pós-Venda</div>
+  <h2>Abertura de Solicitação</h2>
+  <p>Preencha o formulário abaixo para registrar sua solicitação. Nossa equipe responderá em até 24 horas úteis.</p>
+</div>
+
+<div class="container">
+
+  <!-- AVISO FORA DO EXPEDIENTE -->
+  <div id="foraExpediente" style="display:none;">
+    <div class="fora-expediente">
+      <div class="icon">🌙</div>
+      <h3>Fora do Horário de Atendimento</h3>
+      <p>Nossa equipe de pós-venda atende de <strong>segunda a sexta das 9h às 17h</strong> e <strong>sábados das 9h às 12h</strong>.<br>Você ainda pode abrir sua solicitação — ela será atendida no próximo horário disponível.</p>
+      <div class="proximo" id="proximoAtendimento">⏰ Próximo atendimento: segunda-feira às 9h</div>
+    </div>
+  </div>
+
+  <!-- BANNER HORÁRIO (sempre visível) -->
+  <div class="horario-banner">
+    <div class="horario-icon">🕐</div>
+    <div>
+      <div class="horario-title">Horário de Atendimento do Pós-Venda</div>
+      <div class="horario-grid">
+        <div class="horario-item"><div class="horario-dot"></div>Seg a Sex: 9h às 17h</div>
+        <div class="horario-item"><div class="horario-dot"></div>Sábado: 9h às 12h</div>
+      </div>
+      <div class="horario-obs">Cancelamentos, alterações e remarcações são processados somente dentro deste horário, pois dependem do retorno dos fornecedores (companhias aéreas, hotéis e operadoras). Solicitações fora do horário serão atendidas no próximo expediente.</div>
+    </div>
+  </div>
+
+  <!-- SUCESSO -->
+  <div class="card" id="successCard" style="display:none;">
+    <div class="success-screen visible">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Solicitação Registrada!</div>
+      <div class="success-sub">Sua solicitação foi recebida com sucesso.<br>Nossa equipe entrará em contato em até 24 horas úteis.</div>
+      <div class="protocolo-box">
+        <div class="protocolo-label">Seu número de protocolo</div>
+        <div class="protocolo-numero" id="protocoloNumero">—</div>
+        <div class="protocolo-info">📧 Confirmação enviada para o seu email</div>
+      </div>
+      <div class="success-sub" style="font-size:13px;">Guarde este número para acompanhar o andamento da sua solicitação.</div>
+      <div class="success-actions">
+        <button class="btn-secondary" onclick="novasolicitacao()">Abrir Nova Solicitação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div id="formWrapper">
+
+    <!-- LGPD + VALIDAÇÃO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-azul">🔐</div>
+        <div>
+          <div class="card-title">Verificação de Identidade</div>
+          <div class="card-subtitle">LGPD — Lei Geral de Proteção de Dados</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="lgpd-banner">
+          <div class="lgpd-icon">🛡️</div>
+          <div class="lgpd-text">
+            <strong>Seus dados estão protegidos.</strong> As informações fornecidas serão utilizadas exclusivamente para tratamento da sua solicitação, conforme a Lei nº 13.709/2018 (LGPD). Apenas o <strong>contratante</strong> pode solicitar alterações, cancelamentos ou reembolsos referentes à reserva.
+          </div>
+        </div>
+
+        <p class="section-title">Dados do Contratante</p>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label">Nome Completo <span class="required">*</span></label>
+            <input type="text" id="nomeContratante" placeholder="Como consta no documento" />
+            <span class="field-error" id="err_nome">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CPF <span class="required">*</span></label>
+            <input type="text" id="cpfContratante" placeholder="000.000.000-00" maxlength="14" />
+            <span class="field-error" id="err_cpf">CPF inválido</span>
+          </div>
+        </div>
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label">Data de Nascimento <span class="required">*</span></label>
+            <input type="date" id="dataNascimento" />
+            <span class="field-error" id="err_nasc">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="whatsapp" placeholder="(00) 00000-0000" maxlength="15" />
+            <span class="field-error" id="err_whats">Campo obrigatório</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email <span class="required">*</span></label>
+            <input type="email" id="emailContratante" placeholder="seu@email.com" />
+            <span class="field-error" id="err_email">Email inválido</span>
+          </div>
+        </div>
+
+        <div class="separator">
+          <div class="separator-line"></div>
+          <div class="separator-text">DADOS DA RESERVA</div>
+          <div class="separator-line"></div>
+        </div>
+
+        <div class="form-row cols-3">
+          <div class="form-group">
+            <label class="form-label">Localizador / Nº Reserva <span class="required">*</span></label>
+            <input type="text" id="localizador" placeholder="Ex: ABC123" style="text-transform:uppercase;" />
+            <span class="field-error" id="err_loc">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data de Embarque <span class="required">*</span></label>
+            <input type="date" id="dataEmbarque" />
+            <span class="field-error" id="err_emb">Campo obrigatório</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destino</label>
+            <input type="text" id="destino" placeholder="Ex: Cancún, Gramado..." />
+          </div>
+        </div>
+
+        <!-- VIAJANTES -->
+        <div class="form-group" style="margin-top: 4px;">
+          <label class="form-label">Viajantes na Reserva <span class="tag">opcional</span></label>
+          <div class="viajantes-section">
+            <div class="viajantes-header">
+              <span class="viajantes-title">Passageiros</span>
+              <button type="button" class="btn-add-viajante" onclick="addViajante()">+ Adicionar</button>
+            </div>
+            <div id="viajantesList">
+              <div class="viajante-row" id="viajante_0">
+                <div class="form-group">
+                  <label class="form-label" style="font-size:12px;">Nome do Passageiro</label>
+                  <input type="text" placeholder="Nome completo" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="font-size:12px;">Documento (CPF)</label>
+                  <input type="text" placeholder="000.000.000-00" maxlength="14" />
+                </div>
+                <button type="button" class="btn-remove" onclick="removeViajante(0)" style="display:none;">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIPO DE SOLICITAÇÃO -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-laranja">📋</div>
+        <div>
+          <div class="card-title">Tipo de Solicitação</div>
+          <div class="card-subtitle">Selecione o que melhor descreve sua necessidade</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="tipos-grid">
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t1" value="cancelamento_reembolso" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t1" class="tipo-label">
+              <span class="tipo-emoji">💰</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Cancelamento</span>
+                <span class="tipo-desc">Com reembolso</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t2" value="cancelamento_credito" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t2" class="tipo-label">
+              <span class="tipo-emoji">🎫</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Cancelamento</span>
+                <span class="tipo-desc">Manter como crédito</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t3" value="troca_passageiro" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t3" class="tipo-label">
+              <span class="tipo-emoji">🔄</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Troca de Passageiro</span>
+                <span class="tipo-desc">Alterar nome na reserva</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t4" value="alteracao_data" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t4" class="tipo-label">
+              <span class="tipo-emoji">📅</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Alteração de Data</span>
+                <span class="tipo-desc">Remarcar viagem</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t5" value="alteracao_voo" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t5" class="tipo-label">
+              <span class="tipo-emoji">✈️</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Alteração de Voo</span>
+                <span class="tipo-desc">Horário ou rota</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t6" value="alteracao_hotel" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t6" class="tipo-label">
+              <span class="tipo-emoji">🏨</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Alteração de Hotel</span>
+                <span class="tipo-desc">Upgrade ou mudança</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t7" value="segunda_via" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t7" class="tipo-label">
+              <span class="tipo-emoji">📄</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">2ª Via de Boleto</span>
+                <span class="tipo-desc">Reenvio de documento</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t8" value="envio_voucher" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t8" class="tipo-label">
+              <span class="tipo-emoji">🎟️</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Envio de Voucher</span>
+                <span class="tipo-desc">Reenvio de confirmação</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t9" value="marcacao_assento" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t9" class="tipo-label">
+              <span class="tipo-emoji">💺</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Marcação de Assento</span>
+                <span class="tipo-desc">Seleção de poltrona</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <input type="radio" name="tipoSolicitacao" id="t10" value="outro" class="tipo-option" onchange="onTipoChange(this)" />
+            <label for="t10" class="tipo-label">
+              <span class="tipo-emoji">💬</span>
+              <div class="tipo-info">
+                <span class="tipo-nome">Outro</span>
+                <span class="tipo-desc">Descrever abaixo</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <span class="field-error" id="err_tipo" style="margin-top:8px;">Selecione um tipo de solicitação</span>
+
+        <!-- CAMPOS DINÂMICOS POR TIPO -->
+        <div id="detalhe_troca_passageiro" class="detalhe-campo" style="margin-top:16px;">
+          <div class="separator"><div class="separator-line"></div><div class="separator-text">DADOS DO PASSAGEIRO A TROCAR</div><div class="separator-line"></div></div>
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label class="form-label">Nome Atual na Reserva</label>
+              <input type="text" id="nomeAtual" placeholder="Nome que está na reserva hoje" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Novo Passageiro</label>
+              <input type="text" id="nomeNovo" placeholder="Nome completo do substituto" />
+            </div>
+          </div>
+        </div>
+
+        <div id="detalhe_alteracao_data" class="detalhe-campo" style="margin-top:16px;">
+          <div class="separator"><div class="separator-line"></div><div class="separator-text">NOVA DATA DESEJADA</div><div class="separator-line"></div></div>
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label class="form-label">Data Atual da Viagem</label>
+              <input type="date" id="dataAtual" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nova Data Preferida</label>
+              <input type="date" id="dataDesejada" />
+            </div>
+          </div>
+        </div>
+
+        <!-- URGÊNCIA -->
+        <div style="margin-top: 20px;">
+          <div class="separator"><div class="separator-line"></div><div class="separator-text">URGÊNCIA</div><div class="separator-line"></div></div>
+          <div class="urgencia-options">
+            <div>
+              <input type="radio" name="urgencia" id="u1" value="baixa" class="urgencia-radio" />
+              <label for="u1" class="urgencia-label u-baixa">🟢 Pode aguardar</label>
+            </div>
+            <div>
+              <input type="radio" name="urgencia" id="u2" value="media" class="urgencia-radio" checked />
+              <label for="u2" class="urgencia-label u-media">🟡 Até uma semana</label>
+            </div>
+            <div>
+              <input type="radio" name="urgencia" id="u3" value="alta" class="urgencia-radio" />
+              <label for="u3" class="urgencia-label u-alta">🔴 Urgente (embarque próximo)</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">Descrição da Solicitação <span class="required">*</span></label>
+          <textarea id="descricao" placeholder="Descreva em detalhes o que você precisa. Quanto mais informações, mais rápido conseguimos ajudar."></textarea>
+          <span class="field-error" id="err_desc">Campo obrigatório</span>
+        </div>
+
+        <!-- VENDEDOR -->
+        <div class="form-group" style="margin-top: 16px;">
+          <label class="form-label">Consultor que realizou sua venda <span class="tag">se souber</span></label>
+          <input type="text" id="consultor" placeholder="Nome do seu consultor de viagens" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ACEITE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-azul">✅</div>
+        <div>
+          <div class="card-title">Declaração e Aceite</div>
+          <div class="card-subtitle">Leia com atenção antes de enviar</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="background: var(--cinza); border-radius: 10px; padding: 16px; margin-bottom: 16px; font-size: 13px; color: var(--texto); line-height: 1.7;">
+          <p style="margin-bottom: 8px;"><strong>Ao enviar esta solicitação, declaro que:</strong></p>
+          <p>• Sou o <strong>contratante</strong> da reserva informada e estou autorizado a solicitar alterações nesta viagem.</p>
+          <p>• Estou ciente de que cancelamentos, alterações e remarcações podem estar sujeitos a <strong>multas contratuais</strong> conforme as políticas do fornecedor.</p>
+          <p>• Entendo que o prazo de reembolso pode ser de <strong>45 a 90 dias</strong> após o cancelamento aprovado, conforme cada operadora.</p>
+          <p>• Estou ciente de que a Clube Viajar Mais fornecerá <strong>retorno em até 24 horas úteis</strong> após o recebimento desta solicitação.</p>
+          <p>• Autorizo o uso dos meus dados para fins de atendimento desta solicitação, conforme a <strong>LGPD</strong>.</p>
+        </div>
+        <div class="checkbox-group" style="margin-bottom: 12px;">
+          <input type="checkbox" id="aceite1" />
+          <label class="checkbox-label" for="aceite1">Li e aceito todos os termos acima e confirmo ser o contratante desta reserva. <span class="required">*</span></label>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="aceite2" />
+          <label class="checkbox-label" for="aceite2">Autorizo o contato por WhatsApp e email para tratativa desta solicitação. <span class="required">*</span></label>
+        </div>
+        <span class="field-error" id="err_aceite" style="margin-top: 8px;">Você precisa aceitar os termos para continuar</span>
+
+        <button class="btn-submit" id="btnEnviar" onclick="enviarFormulario()">
+          <span id="btnText">Abrir Solicitação</span>
+          <span id="btnSpinner" class="spinner" style="display:none;"></span>
+        </button>
+        <div class="form-footer">
+          🔒 Seus dados são protegidos pela LGPD • Retorno em até 24h úteis<br>
+          Dúvidas? Entre em contato: <strong>(31) 9xxxx-xxxx</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /formWrapper -->
+</div><!-- /container -->
+
+<script>
+// ─── HORÁRIO COMERCIAL ─────────────────────────────────────────
+function verificarExpediente() {
+  // Horário de Brasília (UTC-3)
+  const agora = new Date();
+  const bsb = new Date(agora.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const dia = bsb.getDay(); // 0=dom, 1=seg ... 6=sab
+  const hora = bsb.getHours();
+  const min = bsb.getMinutes();
+  const hDecimal = hora + min / 60;
+
+  let aberto = false;
+  if (dia >= 1 && dia <= 5 && hDecimal >= 9 && hDecimal < 17) aberto = true;
+  if (dia === 6 && hDecimal >= 9 && hDecimal < 12) aberto = true;
+
+  const pill = document.getElementById('expedientePill');
+  const pillText = document.getElementById('expedienteText');
+  const foraDiv = document.getElementById('foraExpediente');
+  const proximoDiv = document.getElementById('proximoAtendimento');
+
+  if (aberto) {
+    pill.className = 'expediente-pill aberto';
+    pillText.textContent = 'Atendimento Aberto';
+    foraDiv.style.display = 'none';
+  } else {
+    pill.className = 'expediente-pill fechado';
+    pillText.textContent = 'Fora do Expediente';
+    foraDiv.style.display = 'block';
+
+    // Calcular próximo atendimento
+    let proximo = '';
+    if (dia === 0) proximo = 'segunda-feira às 9h';
+    else if (dia === 6 && hDecimal >= 12) proximo = 'segunda-feira às 9h';
+    else if (dia >= 1 && dia <= 5 && hDecimal >= 17) {
+      const dias = ['', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+      const proxDia = dia < 5 ? dia + 1 : 6;
+      proximo = `${dias[proxDia]} às 9h`;
+    } else if (dia >= 1 && dia <= 5 && hDecimal < 9) {
+      const dias = ['', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+      proximo = `hoje (${dias[dia]}) às 9h`;
+    } else if (dia === 6 && hDecimal < 9) {
+      proximo = 'hoje (sábado) às 9h';
+    }
+    proximoDiv.textContent = `⏰ Próximo atendimento: ${proximo}`;
+  }
+  return aberto;
+}
+
+// ─── SUPABASE CONFIG ───────────────────────────────────────────
+// Substitua pelas suas credenciais reais
+const SUPABASE_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── VIAJANTES ─────────────────────────────────────────────────
+let viajanteCount = 1;
+
+function addViajante() {
+  const idx = viajanteCount++;
+  const div = document.createElement('div');
+  div.className = 'viajante-row';
+  div.id = `viajante_${idx}`;
+  div.innerHTML = `
+    <div class="form-group">
+      <label class="form-label" style="font-size:12px;">Nome do Passageiro</label>
+      <input type="text" placeholder="Nome completo" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="font-size:12px;">Documento (CPF)</label>
+      <input type="text" placeholder="000.000.000-00" maxlength="14" />
+    </div>
+    <button type="button" class="btn-remove" onclick="removeViajante(${idx})">✕</button>
+  `;
+  document.getElementById('viajantesList').appendChild(div);
+}
+
+function removeViajante(idx) {
+  const el = document.getElementById(`viajante_${idx}`);
+  if (el) el.remove();
+}
+
+// ─── TIPO SOLICITAÇÃO ──────────────────────────────────────────
+function onTipoChange(el) {
+  document.querySelectorAll('.detalhe-campo').forEach(d => d.classList.remove('ativo'));
+  const mapa = {
+    'troca_passageiro': 'detalhe_troca_passageiro',
+    'alteracao_data': 'detalhe_alteracao_data'
+  };
+  if (mapa[el.value]) {
+    document.getElementById(mapa[el.value]).classList.add('ativo');
+  }
+}
+
+// ─── MÁSCARA CPF ───────────────────────────────────────────────
+document.getElementById('cpfContratante').addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  e.target.value = v;
+});
+
+document.getElementById('whatsapp').addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  v = v.replace(/^(\d{2})(\d)/, '($1) $2');
+  v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  e.target.value = v;
+});
+
+// ─── GERAR PROTOCOLO ───────────────────────────────────────────
+function gerarProtocolo() {
+  const ano = new Date().getFullYear();
+  const rand = Math.floor(Math.random() * 90000) + 10000;
+  return `CVM${ano}-${rand}`;
+}
+
+// ─── VALIDAÇÃO ─────────────────────────────────────────────────
+function validar() {
+  let ok = true;
+
+  const campos = [
+    { id: 'nomeContratante', err: 'err_nome', check: v => v.trim().length > 2 },
+    { id: 'cpfContratante', err: 'err_cpf', check: v => v.replace(/\D/g,'').length === 11 },
+    { id: 'dataNascimento', err: 'err_nasc', check: v => !!v },
+    { id: 'whatsapp', err: 'err_whats', check: v => v.replace(/\D/g,'').length >= 10 },
+    { id: 'emailContratante', err: 'err_email', check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { id: 'localizador', err: 'err_loc', check: v => v.trim().length > 0 },
+    { id: 'dataEmbarque', err: 'err_emb', check: v => !!v },
+    { id: 'descricao', err: 'err_desc', check: v => v.trim().length > 10 },
+  ];
+
+  campos.forEach(c => {
+    const el = document.getElementById(c.id);
+    const err = document.getElementById(c.err);
+    const val = el.value;
+    if (!c.check(val)) {
+      el.classList.add('error');
+      err.classList.add('visible');
+      ok = false;
+    } else {
+      el.classList.remove('error');
+      err.classList.remove('visible');
+    }
+  });
+
+  const tipo = document.querySelector('input[name="tipoSolicitacao"]:checked');
+  if (!tipo) {
+    document.getElementById('err_tipo').classList.add('visible');
+    ok = false;
+  } else {
+    document.getElementById('err_tipo').classList.remove('visible');
+  }
+
+  const aceite1 = document.getElementById('aceite1').checked;
+  const aceite2 = document.getElementById('aceite2').checked;
+  if (!aceite1 || !aceite2) {
+    document.getElementById('err_aceite').classList.add('visible');
+    ok = false;
+  } else {
+    document.getElementById('err_aceite').classList.remove('visible');
+  }
+
+  return ok;
+}
+
+// ─── COLETAR VIAJANTES ─────────────────────────────────────────
+function coletarViajantes() {
+  const rows = document.querySelectorAll('#viajantesList .viajante-row');
+  return Array.from(rows).map(row => {
+    const inputs = row.querySelectorAll('input');
+    return { nome: inputs[0].value, cpf: inputs[1].value };
+  }).filter(v => v.nome.trim());
+}
+
+// ─── ENVIAR ────────────────────────────────────────────────────
+async function enviarFormulario() {
+  if (!validar()) {
+    document.querySelector('.field-error.visible')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const btn = document.getElementById('btnEnviar');
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('btnSpinner');
+  btn.disabled = true;
+  btnText.textContent = 'Enviando...';
+  spinner.style.display = 'block';
+
+  const protocolo = gerarProtocolo();
+  const tipo = document.querySelector('input[name="tipoSolicitacao"]:checked').value;
+  const urgencia = document.querySelector('input[name="urgencia"]:checked')?.value || 'media';
+
+  const dados = {
+    protocolo,
+    status: 'aberto',
+    tipo_solicitacao: tipo,
+    urgencia,
+    nome_contratante: document.getElementById('nomeContratante').value,
+    cpf_contratante: document.getElementById('cpfContratante').value,
+    data_nascimento: document.getElementById('dataNascimento').value,
+    whatsapp: document.getElementById('whatsapp').value,
+    email: document.getElementById('emailContratante').value,
+    localizador: document.getElementById('localizador').value.toUpperCase(),
+    data_embarque: document.getElementById('dataEmbarque').value,
+    destino: document.getElementById('destino').value,
+    descricao: document.getElementById('descricao').value,
+    consultor: document.getElementById('consultor').value,
+    viajantes: coletarViajantes(),
+    nome_atual: document.getElementById('nomeAtual')?.value || '',
+    nome_novo: document.getElementById('nomeNovo')?.value || '',
+    data_atual: document.getElementById('dataAtual')?.value || '',
+    data_desejada: document.getElementById('dataDesejada')?.value || '',
+    created_at: new Date().toISOString(),
+    aberto_em_expediente: verificarExpediente(),
+    prazo_resposta: calcularPrazoResposta(),
+    historico: JSON.stringify([{
+      acao: 'Solicitação aberta pelo cliente',
+      usuario: 'cliente',
+      data: new Date().toISOString(),
+      em_expediente: verificarExpediente()
+    }])
+  };
+
+  try {
+    // PRODUÇÃO — salva no Supabase
+    const dadosSupabase = {
+      ...dados,
+      viajantes: typeof dados.viajantes === 'string' ? JSON.parse(dados.viajantes) : dados.viajantes,
+      historico: typeof dados.historico === 'string' ? JSON.parse(dados.historico) : dados.historico,
+    };
+    const { error } = await supabase.from('solicitacoes').insert([dadosSupabase]);
+    if (error) throw error;
+
+    // Sucesso
+    document.getElementById('formWrapper').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+    document.getElementById('protocoloNumero').textContent = protocolo;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    alert('Erro ao enviar. Tente novamente.');
+    btn.disabled = false;
+    btnText.textContent = 'Abrir Solicitação';
+    spinner.style.display = 'none';
+  }
+}
+
+// ─── PRAZO INTELIGENTE (próximo horário comercial + 4h) ────────
+function calcularPrazoResposta() {
+  const agora = new Date();
+  const bsb = new Date(agora.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const dia = bsb.getDay();
+  const hora = bsb.getHours() + bsb.getMinutes()/60;
+
+  // Se está dentro do expediente: prazo = agora + 4h
+  let aberto = false;
+  if (dia >= 1 && dia <= 5 && hora >= 9 && hora < 17) aberto = true;
+  if (dia === 6 && hora >= 9 && hora < 12) aberto = true;
+
+  if (aberto) return new Date(agora.getTime() + 4*60*60*1000).toISOString();
+
+  // Fora do expediente: prazo = próxima abertura + 4h
+  const proxima = new Date(bsb);
+  if (dia === 0) { // domingo → segunda 9h
+    proxima.setDate(proxima.getDate() + 1);
+    proxima.setHours(13, 0, 0, 0); // 9h + 4h
+  } else if (dia === 6 && hora >= 12) { // sábado depois do meio-dia → segunda
+    proxima.setDate(proxima.getDate() + 2);
+    proxima.setHours(13, 0, 0, 0);
+  } else if (dia >= 1 && dia <= 4 && hora >= 17) { // seg-qui após 17h → próximo dia
+    proxima.setDate(proxima.getDate() + 1);
+    proxima.setHours(13, 0, 0, 0);
+  } else if (dia === 5 && hora >= 17) { // sexta após 17h → segunda
+    proxima.setDate(proxima.getDate() + 3);
+    proxima.setHours(13, 0, 0, 0);
+  } else { // antes das 9h em qualquer dia útil
+    proxima.setHours(13, 0, 0, 0);
+  }
+  return proxima.toISOString();
+}
+
+function novasolicitacao() {
+  document.getElementById('formWrapper').style.display = 'block';
+  document.getElementById('successCard').style.display = 'none';
+  document.getElementById('formWrapper').reset?.();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── INIT ──────────────────────────────────────────────────────
+verificarExpediente();
+setInterval(verificarExpediente, 60000); // Atualiza a cada minuto
+</script>
+</body>
+</html>
