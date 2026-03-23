@@ -152,7 +152,7 @@
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(10,61,107,0.1);
-    overflow: hidden;
+    overflow: visible;
     margin-bottom: 16px;
   }
   .card-header {
@@ -357,16 +357,19 @@
   .btn-remove:hover { background: #fecaca; }
 
   /* CHECKBOX */
-  .checkbox-group { display: flex; align-items: flex-start; gap: 10px; }
+  .checkbox-group { display: flex; align-items: flex-start; gap: 10px; position: relative; z-index: 20; }
   .checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
     margin-top: 1px;
     accent-color: var(--azul-medio);
     cursor: pointer;
+    position: relative;
+    z-index: 20;
+    pointer-events: all;
   }
-  .checkbox-label { font-size: 13px; line-height: 1.5; color: var(--texto); cursor: pointer; }
+  .checkbox-label { font-size: 13px; line-height: 1.5; color: var(--texto); cursor: pointer; position: relative; z-index: 20; }
   .checkbox-label a { color: var(--azul-medio); text-decoration: underline; }
 
   /* BOTÃO SUBMIT */
@@ -918,12 +921,12 @@
           <p>• Estou ciente de que a Clube Viajar Mais fornecerá <strong>retorno em até 24 horas úteis</strong> após o recebimento desta solicitação.</p>
           <p>• Autorizo o uso dos meus dados para fins de atendimento desta solicitação, conforme a <strong>LGPD</strong>.</p>
         </div>
-        <div class="checkbox-group" style="margin-bottom: 12px;">
-          <input type="checkbox" id="aceite1" />
+        <div class="checkbox-group" style="margin-bottom: 12px; position:relative; z-index:20;">
+          <input type="checkbox" id="aceite1" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;margin-top:2px;" />
           <label class="checkbox-label" for="aceite1">Li e aceito todos os termos acima e confirmo ser o contratante desta reserva. <span class="required">*</span></label>
         </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="aceite2" />
+        <div class="checkbox-group" style="position:relative; z-index:20;">
+          <input type="checkbox" id="aceite2" style="width:20px;height:20px;cursor:pointer;flex-shrink:0;margin-top:2px;" />
           <label class="checkbox-label" for="aceite2">Autorizo o contato por WhatsApp e email para tratativa desta solicitação. <span class="required">*</span></label>
         </div>
         <span class="field-error" id="err_aceite" style="margin-top: 8px;">Você precisa aceitar os termos para continuar</span>
@@ -991,10 +994,13 @@ function verificarExpediente() {
 }
 
 // ─── SUPABASE CONFIG ───────────────────────────────────────────
-// Substitua pelas suas credenciais reais
 const SUPABASE_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let _sbForm;
+function getSB() {
+  if (!_sbForm) _sbForm = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return _sbForm;
+}
 
 // ─── VIAJANTES ─────────────────────────────────────────────────
 let viajanteCount = 1;
@@ -1172,7 +1178,7 @@ async function enviarFormulario() {
       viajantes: typeof dados.viajantes === 'string' ? JSON.parse(dados.viajantes) : dados.viajantes,
       historico: typeof dados.historico === 'string' ? JSON.parse(dados.historico) : dados.historico,
     };
-    const { error } = await supabase.from('solicitacoes').insert([dadosSupabase]);
+    const { error } = await getSB().from('solicitacoes').insert([dadosSupabase]);
     if (error) throw error;
 
     // Sucesso
