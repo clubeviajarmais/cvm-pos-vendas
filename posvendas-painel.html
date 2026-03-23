@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Pós-Venda | CVM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #0a3d6b;
+  --azul-medio: #1565a8;
+  --azul-claro: #e8f2fc;
+  --laranja: #f47c20;
+  --cinza-bg: #f0f4f8;
+  --cinza: #f5f6f8;
+  --texto: #1a1a2e;
+  --texto-leve: #6b7280;
+  --borda: #e2e8f0;
+  --branco: #fff;
+  --sucesso: #10b981;
+  --erro: #ef4444;
+  --alerta: #f59e0b;
+  --sidebar: 248px;
+  --purple: #7c3aed;
+  --teal: #0d9488;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cinza-bg); color: var(--texto); display: flex; min-height: 100vh; }
+
+/* ── LOGIN ── */
+.login-overlay {
+  position: fixed; inset: 0; background: linear-gradient(135deg, var(--azul) 0%, #1565a8 100%);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.login-box { background: white; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; }
+.login-logo { width: 56px; height: 56px; background: var(--laranja); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px; color: white; margin: 0 auto 20px; }
+.login-box h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--azul); margin-bottom: 6px; }
+.login-box p { font-size: 13px; color: var(--texto-leve); margin-bottom: 28px; }
+.login-box input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; margin-bottom: 12px; outline: none; }
+.login-box input:focus { border-color: var(--azul-medio); }
+.btn-login { width: 100%; padding: 14px; background: var(--laranja); color: white; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.btn-login:hover { opacity: 0.9; }
+.login-error { color: var(--erro); font-size: 13px; margin-top: 8px; display: none; }
+
+/* ── SIDEBAR ── */
+.sidebar { width: var(--sidebar); background: var(--azul); position: fixed; top: 0; left: 0; bottom: 0; display: flex; flex-direction: column; z-index: 50; }
+.sidebar-logo { padding: 20px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.sidebar-logo .logo-mark { width: 34px; height: 34px; background: var(--laranja); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: white; margin-bottom: 8px; }
+.sidebar-logo h1 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: white; }
+.sidebar-logo p { font-size: 10px; color: rgba(255,255,255,0.5); }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.nav-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: rgba(255,255,255,0.35); padding: 10px 8px 4px; }
+.nav-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 6px 0; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: 9px; cursor: pointer; transition: background 0.15s; color: rgba(255,255,255,0.65); font-size: 13px; font-weight: 400; text-decoration: none; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+.nav-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+.nav-item .icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--laranja); color: white; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 100px; }
+.nav-badge.verde { background: var(--sucesso); }
+.sidebar-user { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+.user-info { display: flex; align-items: center; gap: 9px; }
+.user-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; color: white; }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.5); }
+.btn-logout { font-size: 11px; color: rgba(255,255,255,0.5); cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; border: none; background: transparent; margin-top: 6px; width: 100%; }
+.btn-logout:hover { color: white; background: rgba(255,255,255,0.1); }
+
+/* ── MAIN ── */
+.main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.topbar { background: white; border-bottom: 1px solid var(--borda); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+.topbar-left h2 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--azul); }
+.topbar-left p { font-size: 12px; color: var(--texto-leve); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.btn-primary { padding: 9px 16px; background: var(--laranja); color: white; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+.btn-primary:hover { opacity: 0.9; }
+.content { flex: 1; padding: 24px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── KPIs ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.kpi-card { background: white; border-radius: 13px; padding: 18px; box-shadow: 0 1px 6px rgba(10,61,107,0.07); display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+.kpi-card.azul { border-left-color: var(--azul-medio); }
+.kpi-card.laranja { border-left-color: var(--laranja); }
+.kpi-card.verde { border-left-color: var(--sucesso); }
+.kpi-card.vermelho { border-left-color: var(--erro); }
+.kpi-card.amarelo { border-left-color: var(--alerta); }
+.kpi-card.roxo { border-left-color: var(--purple); }
+.kpi-card.teal { border-left-color: var(--teal); }
+.kpi-label { font-size: 11.5px; color: var(--texto-leve); font-weight: 500; }
+.kpi-valor { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--azul); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--texto-leve); }
+
+/* ── FILTROS ── */
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
+.filtro-btn { padding: 7px 14px; border: 1.5px solid var(--borda); border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 500; cursor: pointer; background: white; color: var(--texto); transition: all 0.15s; }
+.filtro-btn:hover, .filtro-btn.active { border-color: var(--azul-medio); background: var(--azul-claro); color: var(--azul); }
+.filtro-urgencia-alta.active { border-color: var(--erro); background: #fef2f2; color: var(--erro); }
+.search-input { padding: 8px 13px; border: 1.5px solid var(--borda); border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12.5px; outline: none; min-width: 200px; }
+.search-input:focus { border-color: var(--azul-medio); }
+
+/* ── TABELAS ── */
+.table-card { background: white; border-radius: 13px; box-shadow: 0 1px 6px rgba(10,61,107,0.07); overflow: hidden; }
+.table-header { padding: 14px 18px; border-bottom: 1px solid var(--borda); display: flex; align-items: center; justify-content: space-between; }
+.table-title { font-family: 'Syne', sans-serif; font-size: 13.5px; font-weight: 700; color: var(--azul); }
+.table-count { font-size: 12px; color: var(--texto-leve); }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 9px 14px; text-align: left; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-leve); background: var(--cinza); border-bottom: 1px solid var(--borda); white-space: nowrap; }
+td { padding: 12px 14px; font-size: 12.5px; border-bottom: 1px solid var(--borda); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafbfc; }
+.col-protocolo { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--azul); font-size: 12px; }
+.col-nome { font-weight: 500; }
+.col-sub { font-size: 11px; color: var(--texto-leve); margin-top: 2px; }
+
+/* ── BADGES / PILLS ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 100px; }
+.badge-aberto { background: #dbeafe; color: #1e40af; }
+.badge-em_andamento { background: #fef3c7; color: #92400e; }
+.badge-aguardando_fornecedor { background: #ede9fe; color: #6d28d9; }
+.badge-resolvido { background: #d1fae5; color: #065f46; }
+.badge-cancelado { background: #f3f4f6; color: #6b7280; }
+.pill { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+.pill-blue { background: #dbeafe; color: #1e40af; }
+.pill-green { background: #d1fae5; color: #065f46; }
+.pill-orange { background: #ffedd5; color: #9a3412; }
+.pill-red { background: #fef2f2; color: #991b1b; }
+.pill-purple { background: #ede9fe; color: #5b21b6; }
+.pill-gray { background: #f3f4f6; color: #6b7280; }
+.pill-teal { background: #ccfbf1; color: #134e4a; }
+.pill-yellow { background: #fef9c3; color: #713f12; }
+
+.urg-alta { color: var(--erro); font-weight: 600; font-size: 12px; }
+.urg-media { color: var(--alerta); font-weight: 500; font-size: 12px; }
+.urg-baixa { color: var(--sucesso); font-weight: 500; font-size: 12px; }
+.tipo-chip { font-size: 11px; background: var(--cinza); color: var(--texto); padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+.btn-ver { padding: 5px 11px; background: var(--azul-claro); color: var(--azul-medio); border: none; border-radius: 7px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-ver:hover { background: #c3d9f0; }
+.prazo-ok { color: var(--sucesso); font-size: 11.5px; }
+.prazo-alerta { color: var(--alerta); font-size: 11.5px; font-weight: 600; }
+.prazo-vencido { color: var(--erro); font-size: 11.5px; font-weight: 700; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 50px 20px; color: var(--texto-leve); }
+.empty-icon { font-size: 44px; margin-bottom: 14px; }
+.empty-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
+
+/* ── MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: flex-start; justify-content: flex-end; padding: 16px; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 16px; width: 580px; max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--borda); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 1; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--azul); }
+.modal-close { width: 30px; height: 30px; background: var(--cinza); border: none; border-radius: 8px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+.modal-body { padding: 18px 22px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+.detail-item { display: flex; flex-direction: column; gap: 3px; }
+.detail-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--texto-leve); }
+.detail-value { font-size: 13.5px; font-weight: 500; color: var(--texto); }
+.section-sep { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 0 8px; border-top: 1px solid var(--borda); margin-top: 4px; }
+.historico { display: flex; flex-direction: column; gap: 0; }
+.hist-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--cinza); }
+.hist-item:last-child { border-bottom: none; }
+.hist-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--azul-medio); flex-shrink: 0; margin-top: 4px; }
+.hist-dot.sistema { background: var(--texto-leve); }
+.hist-dot.cliente { background: var(--sucesso); }
+.hist-dot.fornecedor { background: var(--laranja); }
+.hist-content { flex: 1; }
+.hist-acao { font-size: 13px; font-weight: 500; color: var(--texto); }
+.hist-meta { font-size: 11px; color: var(--texto-leve); margin-top: 2px; }
+.add-acao { margin-top: 14px; }
+.add-acao textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--borda); border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical; min-height: 76px; outline: none; }
+.add-acao textarea:focus { border-color: var(--azul-medio); }
+.add-acao-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; }
+.add-acao-footer select { padding: 7px 11px; border: 1.5px solid var(--borda); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none; }
+.status-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
+.btn-status { padding: 7px 13px; border: 1.5px solid var(--borda); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; background: white; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.btn-status:hover { background: var(--cinza); }
+.btn-status.em_andamento { border-color: var(--alerta); color: #92400e; }
+.btn-status.em_andamento:hover { background: #fffbeb; }
+.btn-status.aguardando { border-color: #6d28d9; color: #6d28d9; }
+.btn-status.aguardando:hover { background: #ede9fe; }
+.btn-status.resolvido { border-color: var(--sucesso); color: var(--sucesso); }
+.btn-status.resolvido:hover { background: #d1fae5; }
+.taxa-box { background: #fff8f0; border: 1.5px solid #fed7aa; border-radius: 10px; padding: 14px 16px; margin-top: 12px; }
+.taxa-title { font-size: 12px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.taxa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.taxa-item label { font-size: 12px; color: var(--texto-leve); display: block; margin-bottom: 4px; }
+.taxa-item input, .taxa-item select { padding: 7px 10px; border: 1.5px solid var(--borda); border-radius: 8px; font-size: 12.5px; width: 100%; font-family: 'DM Sans', sans-serif; }
+.taxa-isenta { background: #f0fdf4; border-color: #bbf7d0; }
+.taxa-isenta .taxa-title { color: #065f46; }
+.taxa-isenta-label { font-size: 13px; color: var(--sucesso); font-weight: 600; }
+.bloqueio-aviso { background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--erro); display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+
+/* ── EXPEDIENTE ── */
+.expediente-topbar { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 100px; }
+.exp-aberto { background: #d1fae5; color: #065f46; }
+.exp-fechado { background: #fef3c7; color: #92400e; }
+.exp-pulse { width: 7px; height: 7px; border-radius: 50%; }
+.exp-aberto .exp-pulse { background: var(--sucesso); animation: pulse 1.5s infinite; }
+.exp-fechado .exp-pulse { background: var(--alerta); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 22px; right: 22px; background: var(--azul); color: white; padding: 11px 18px; border-radius: 11px; font-size: 13px; font-weight: 500; z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── EMBARQUES (módulo integrado) ── */
+.emb-kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 12px; margin-bottom: 20px; }
+.emb-alert { background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 11px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 11px; margin-bottom: 16px; }
+.emb-alert.orange { background: #fff7ed; border-color: #fed7aa; }
+.emb-alert.blue { background: #eff6ff; border-color: #bfdbfe; }
+.emb-alert.green { background: #f0fdf4; border-color: #bbf7d0; }
+.emb-alert-title { font-weight: 700; font-size: 13px; color: var(--erro); }
+.emb-alert.orange .emb-alert-title { color: #9a3412; }
+.emb-alert.blue .emb-alert-title { color: var(--azul); }
+.emb-alert.green .emb-alert-title { color: #065f46; }
+.emb-alert-sub { font-size: 12px; color: var(--texto-leve); margin-top: 2px; }
+
+.week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+.day-col { background: white; border: 1.5px solid var(--borda); border-radius: 11px; padding: 12px 10px; min-height: 90px; }
+.day-col.hoje-col { border-color: var(--azul-medio); box-shadow: 0 0 0 2px rgba(21,101,168,0.15); }
+.day-col.amanha-col { border-color: var(--laranja); }
+.day-name { font-size: 9.5px; font-weight: 700; color: var(--texto-leve); text-transform: uppercase; letter-spacing: .07em; }
+.day-num { font-size: 20px; font-weight: 800; color: var(--azul); font-family: 'Syne',sans-serif; line-height: 1; margin: 3px 0 7px; }
+.day-col.hoje-col .day-num { color: var(--azul-medio); }
+.day-col.amanha-col .day-num { color: var(--laranja); }
+.day-count { font-size: 17px; font-weight: 800; color: var(--azul-medio); font-family: 'Syne',sans-serif; }
+.day-zero { font-size: 11px; color: var(--borda); }
+.day-event { background: var(--azul-claro); border-left: 3px solid var(--azul-medio); border-radius: 4px; padding: 3px 6px; margin-bottom: 4px; font-size: 10px; color: var(--azul); }
+.day-event.intl { background: #ede9fe; border-left-color: var(--purple); color: var(--purple); }
+
+.month-bars { display: flex; align-items: flex-end; gap: 5px; height: 90px; margin-bottom: 8px; }
+.month-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.month-bar { width: 100%; border-radius: 4px 4px 0 0; cursor: pointer; min-height: 3px; }
+.month-bar:hover { filter: brightness(1.1); }
+.month-bar-label { font-size: 9px; color: var(--texto-leve); font-weight: 600; }
+.month-bar-val { font-size: 9.5px; color: var(--texto); font-weight: 700; font-family: 'Syne',sans-serif; }
+
+.bar-chart { display: flex; flex-direction: column; gap: 7px; }
+.bar-row { display: flex; align-items: center; gap: 9px; }
+.bar-label { font-size: 11.5px; color: var(--texto-leve); width: 110px; flex-shrink: 0; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: var(--cinza-bg); border-radius: 4px; height: 20px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 7px; font-size: 10px; font-weight: 700; color: white; min-width: 24px; }
+.bar-val { font-size: 11px; color: var(--texto-leve); width: 32px; text-align: right; font-family: 'Syne',sans-serif; font-weight: 700; }
+
+.check-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--cinza); }
+.check-row:last-child { border-bottom: none; }
+.check-box-emb { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--borda); cursor: pointer; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.check-box-emb.checked { background: var(--sucesso); border-color: var(--sucesso); }
+.check-box-emb.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 800; }
+
+.progress-wrap { background: var(--cinza-bg); border-radius: 4px; height: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media (max-width: 1100px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } .week-grid { grid-template-columns: repeat(4,1fr); } }
+
+.emb-tabs { display: flex; gap: 2px; background: var(--cinza); padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 16px; }
+.emb-tab { padding: 6px 14px; border: none; background: none; cursor: pointer; font-family: 'DM Sans',sans-serif; font-size: 12px; font-weight: 600; color: var(--texto-leve); border-radius: 7px; transition: all .15s; }
+.emb-tab.active { background: white; color: var(--azul); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+.section-title-emb { font-family: 'Syne',sans-serif; font-size: 13px; font-weight: 700; color: var(--azul); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title-emb::before { content:''; width:3px; height:14px; background: var(--laranja); border-radius:2px; display:block; }
+
+.client-row { background: white; border: 1.5px solid var(--borda); border-radius: 11px; padding: 14px 16px; margin-bottom: 9px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.client-row:hover { border-color: var(--azul-medio); box-shadow: 0 2px 12px rgba(10,61,107,0.08); }
+.client-row.pri-urgent { border-left: 4px solid var(--erro); }
+.client-row.pri-high { border-left: 4px solid var(--laranja); }
+.client-row.pri-med { border-left: 4px solid var(--alerta); }
+.client-row.pri-low { border-left: 4px solid var(--sucesso); }
+.cr-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.cr-name { font-weight: 700; font-size: 13.5px; color: var(--azul); }
+.cr-meta { font-size: 11.5px; color: var(--texto-leve); margin-top: 2px; }
+.cr-checks { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.cr-check { display: flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all .1s; }
+.cr-check.done { background: #d1fae5; color: #065f46; }
+.cr-check.pend { background: var(--cinza); color: var(--texto-leve); }
+.cr-check.alert { background: #fef2f2; color: var(--erro); animation: blink 1.5s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ── PAGINAÇÃO ── */
+.pagination { display: flex; align-items: center; gap: 5px; margin-top: 12px; justify-content: center; }
+.page-btn { width: 30px; height: 30px; border-radius: 7px; border: 1.5px solid var(--borda); background: white; color: var(--texto-leve); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.page-btn:hover, .page-btn.active { background: var(--azul); color: white; border-color: var(--azul); }
+
+/* ── RESPONSIVO ── */
+@media (max-width: 900px) { .sidebar { display: none; } .main { margin-left: 0; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">VM</div>
+    <h2>Pós-Venda CVM</h2>
+    <p>Acesso restrito à equipe interna</p>
+    <input type="text" id="loginUser" placeholder="Usuário" />
+    <input type="password" id="loginPass" placeholder="Senha" onkeydown="if(event.key==='Enter') fazerLogin()" />
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+    <div class="login-error" id="loginError">Usuário ou senha incorretos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none; width:100%;">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">VM</div>
+      <h1>Viajar Mais</h1>
+      <p>Central de Pós-Venda</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Solicitações</div>
+      <button class="nav-item active" onclick="navTo('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="navTo('solicitacoes')">
+        <span class="icon">📋</span> Solicitações
+        <span class="nav-badge" id="badgeAbertos">0</span>
+      </button>
+      <button class="nav-item" onclick="navToFiltro('alta')">
+        <span class="icon">🔴</span> Urgentes
+        <span class="nav-badge" id="badgeUrgente" style="background:#ef4444">0</span>
+      </button>
+      <button class="nav-item" onclick="navToFiltro('media')">
+        <span class="icon">🟡</span> Esta Semana
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-label">Embarques</div>
+      <button class="nav-item" onclick="navTo('emb_visaogeral')">
+        <span class="icon">✈️</span> Visão Geral
+      </button>
+      <button class="nav-item" onclick="navTo('emb_clientes')">
+        <span class="icon">👥</span> Clientes
+        <span class="nav-badge verde" id="badgeEmbarques">...</span>
+      </button>
+      <button class="nav-item" onclick="navTo('emb_checklist')">
+        <span class="icon">✅</span> Checklist
+      </button>
+      <button class="nav-item" onclick="navTo('emb_internacionais')">
+        <span class="icon">🌍</span> Internacionais
+        <span class="nav-badge" style="background:var(--purple)" id="badgeIntl">...</span>
+      </button>
+      <button class="nav-item" onclick="navTo('emb_upsell')">
+        <span class="icon">💰</span> UPSell
+      </button>
+
+      <div class="nav-sep"></div>
+      <div class="nav-label">Gestão</div>
+      <button class="nav-item" onclick="navTo('relatorios')">
+        <span class="icon">📈</span> Relatórios
+      </button>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userInitial">R</div>
+        <div>
+          <div class="user-name" id="userNome">Rafael</div>
+          <div class="user-role" id="userRole">Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sair do sistema</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 id="pageTitle">Dashboard</h2>
+        <p id="pageSubtitle">Visão geral do pós-venda</p>
+      </div>
+      <div class="topbar-right">
+        <div class="expediente-topbar" id="expTopbar"><div class="exp-pulse"></div><span id="expTopbarText">...</span></div>
+        <a href="posvendas-form.html" target="_blank" class="btn-primary">+ Nova Solicitação</a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page_dashboard">
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="table-card">
+          <div class="table-header"><span class="table-title">🔴 Urgentes e Recentes</span></div>
+          <div id="tabelaUrgentes"></div>
+        </div>
+      </div>
+
+      <!-- ══ SOLICITAÇÕES ══ -->
+      <div class="page" id="page_solicitacoes">
+        <div class="filtros">
+          <input class="search-input" id="searchInput" placeholder="🔍 Protocolo, nome, localizador..." oninput="renderTabela()" />
+          <button class="filtro-btn active" onclick="setFiltro('todos',this)">Todos</button>
+          <button class="filtro-btn" onclick="setFiltro('aberto',this)">Abertos</button>
+          <button class="filtro-btn" onclick="setFiltro('em_andamento',this)">Em Andamento</button>
+          <button class="filtro-btn" onclick="setFiltro('aguardando_fornecedor',this)">Aguard. Fornecedor</button>
+          <button class="filtro-btn" onclick="setFiltro('resolvido',this)">Resolvidos</button>
+          <button class="filtro-btn filtro-urgencia-alta" onclick="setUrgencia('alta',this)">🔴 Urgente</button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title">Todas as Solicitações</span>
+            <span class="table-count" id="tabelaCount"></span>
+          </div>
+          <div id="tabelaPrincipal"></div>
+        </div>
+      </div>
+
+      <!-- ══ RELATÓRIOS ══ -->
+      <div class="page" id="page_relatorios">
+        <div class="kpi-grid" id="kpiRelatorios"></div>
+        <div class="table-card" style="margin-top:18px">
+          <div class="table-header"><span class="table-title">Solicitações por Tipo</span></div>
+          <div id="tabelaTipos"></div>
+        </div>
+      </div>
+
+      <!-- ══ EMBARQUES: VISÃO GERAL ══ -->
+      <div class="page" id="page_emb_visaogeral">
+        <div class="emb-kpi-grid" id="emb-kpis"></div>
+        <div class="emb-alert" id="emb-alert-48h" style="display:none">
+          <span style="font-size:18px">🚨</span>
+          <div>
+            <div class="emb-alert-title">Clientes embarcando em menos de 48h!</div>
+            <div class="emb-alert-sub" id="emb-alert-48h-text"></div>
+          </div>
+        </div>
+        <div class="section-title-emb">Embarques – Próximos 7 Dias</div>
+        <div class="table-card" style="margin-bottom:16px">
+          <div style="padding:14px"><div class="week-grid" id="week-grid"></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">📅 Embarques por Mês</span></div>
+            <div style="padding:16px">
+              <div class="month-bars" id="month-bars"></div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px" id="month-legend"></div>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">📍 Top Destinos</span></div>
+            <div style="padding:16px"><div class="bar-chart" id="bar-destinos"></div></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">🏢 Por Unidade</span></div>
+            <div style="padding:16px"><div class="bar-chart" id="bar-unidades"></div></div>
+          </div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">👤 Top Vendedores</span></div>
+            <div style="padding:16px"><div class="bar-chart" id="bar-vendedores"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EMBARQUES: CLIENTES ══ -->
+      <div class="page" id="page_emb_clientes">
+        <div class="filtros">
+          <input class="search-input" id="emb-search" placeholder="🔍 Buscar passageiro, destino..." oninput="renderEmbClientes()">
+          <select class="search-input" style="min-width:auto;width:auto" id="emb-emp" onchange="renderEmbClientes()">
+            <option value="">Todas as unidades</option>
+            <option>SHOPPING SETE LAGOAS</option><option>BOA VISTA</option><option>ASSAÍ MINAS SHOPPING</option>
+          </select>
+          <select class="search-input" style="min-width:auto;width:auto" id="emb-per" onchange="renderEmbClientes()">
+            <option value="">Todos os períodos</option>
+            <option value="1">Amanhã</option><option value="7">7 dias</option>
+            <option value="15">15 dias</option><option value="30">30 dias</option>
+          </select>
+          <select class="search-input" style="min-width:auto;width:auto" id="emb-dest" onchange="renderEmbClientes()">
+            <option value="">Todos os destinos</option>
+            <option value="Nacional">Nacional</option><option value="Internacional">Internacional</option>
+          </select>
+        </div>
+        <div id="emb-cli-cards"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+          <span class="table-count" id="emb-cli-info"></span>
+          <div class="pagination" id="emb-cli-pag"></div>
+        </div>
+      </div>
+
+      <!-- ══ EMBARQUES: CHECKLIST ══ -->
+      <div class="page" id="page_emb_checklist">
+        <div class="emb-alert orange">
+          <span style="font-size:18px">⚡</span>
+          <div>
+            <div class="emb-alert-title">Regras de Prioridade Automáticas</div>
+            <div class="emb-alert-sub">
+              💺 Poltrona (48h) · ⏱️ Horário/Voo (48h) · ✉️ Cartinha Hotel (72h) · 📄 Voucher (72h) · 💰 UPSell (7d)
+            </div>
+          </div>
+        </div>
+        <div class="filtros">
+          <input class="search-input" id="chk-search" placeholder="🔍 Buscar cliente..." oninput="renderChecklist()">
+          <select class="search-input" style="min-width:auto;width:auto" id="chk-per" onchange="renderChecklist()">
+            <option value="7">Próx. 7 dias</option><option value="15">Próx. 15 dias</option><option value="30">Próx. 30 dias</option>
+          </select>
+        </div>
+        <div id="checklist-cards"></div>
+      </div>
+
+      <!-- ══ EMBARQUES: INTERNACIONAIS ══ -->
+      <div class="page" id="page_emb_internacionais">
+        <div class="emb-alert blue">
+          <span style="font-size:18px">🛂</span>
+          <div>
+            <div class="emb-alert-title">Atenção Especial: Viagens Internacionais</div>
+            <div class="emb-alert-sub">Passaporte obrigatório · Visto conforme destino · Seguro viagem recomendado · Vacinas conforme destino</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">🌍 Destinos Internacionais</span></div>
+            <div style="padding:16px"><div class="bar-chart" id="bar-intl-dest"></div></div>
+          </div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">📋 Checklist Internacional</span></div>
+            <div style="padding:16px">
+              <div class="check-row"><div class="check-box-emb checked"></div><div><div style="font-size:13px;font-weight:600">✈️ Passaporte válido (mín. 6 meses após retorno)</div><div style="font-size:11px;color:var(--texto-leve)">Verificar com antecedência</div></div></div>
+              <div class="check-row"><div class="check-box-emb"></div><div><div style="font-size:13px;font-weight:600">📄 Visto conforme destino</div><div style="font-size:11px;color:var(--texto-leve)">EUA, Canadá, Schengen etc.</div></div></div>
+              <div class="check-row"><div class="check-box-emb"></div><div><div style="font-size:13px;font-weight:600">🏥 Seguro viagem internacional</div><div style="font-size:11px;color:var(--texto-leve)">Mín. USD 30.000 para Europa</div></div></div>
+              <div class="check-row"><div class="check-box-emb"></div><div><div style="font-size:13px;font-weight:600">💉 Vacina febre amarela</div><div style="font-size:11px;color:var(--texto-leve)">América do Sul e África</div></div></div>
+              <div class="check-row"><div class="check-box-emb"></div><div><div style="font-size:13px;font-weight:600">💳 Câmbio / cartão internacional</div><div style="font-size:11px;color:var(--texto-leve)">Orientar o cliente</div></div></div>
+              <div class="check-row"><div class="check-box-emb"></div><div><div style="font-size:13px;font-weight:600">🏨 Voucher hotel confirmado</div><div style="font-size:11px;color:var(--texto-leve)">Enviar antes da viagem</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <span class="table-title">🌍 Clientes com Viagem Internacional</span>
+            <span class="table-count" id="intl-count"></span>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Embarque</th><th>Passageiro</th><th>Destino/Pacote</th><th>Fornecedor</th><th>Unidade</th><th>Doc.</th><th>Passaporte</th><th>Seguro</th><th>Voucher</th></tr></thead>
+              <tbody id="intl-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ EMBARQUES: UPSELL ══ -->
+      <div class="page" id="page_emb_upsell">
+        <div class="emb-kpi-grid" id="ups-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+        <div class="emb-alert orange">
+          <span style="font-size:18px">💰</span>
+          <div>
+            <div class="emb-alert-title">Oportunidades Identificadas – Próximos 30 dias</div>
+            <div class="emb-alert-sub">🟢 Space Park cruzado: clientes com estacionamento já vendido aparecem como "✅ Já vendido". Foque nas oportunidades em laranja.</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">🛡️ Seguro Viagem</span><span class="table-count">Sem seguro – próx. 30 dias</span></div>
+            <div class="tbl-wrap" style="max-height:380px;overflow-y:auto">
+              <table><thead><tr><th>Embarque</th><th>Passageiro</th><th>Destino</th><th>Vendedor</th><th>Ação</th></tr></thead>
+              <tbody id="ups-seguro-tbody"></tbody></table>
+            </div>
+          </div>
+          <div class="table-card">
+            <div class="table-header"><span class="table-title">🅿️ Estacionamento (Space Park)</span><span class="table-count">Cruzado automaticamente</span></div>
+            <div class="tbl-wrap" style="max-height:380px;overflow-y:auto">
+              <table><thead><tr><th>Embarque</th><th>Passageiro</th><th>Status</th><th>Vendedor</th><th>Ação</th></tr></thead>
+              <tbody id="ups-estac-tbody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL DETALHE SOLICITAÇÃO -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- MODAL EMBARQUE CLIENTE -->
+<div class="modal-overlay" id="modalEmbOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" id="modalEmbContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DADOS REAIS – EMBARQUES_FUTUROS.xlsx (2.946 registros)
+// ═══════════════════════════════════════════════
+
+// Data dinâmica real
+const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+const TODAY = todayDate.toISOString().slice(0,10);
+
+function normPax(n){ return (n||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+const RAW_EMB = [
+  {v:9556,forn:'Space Park Confins',ini:'2026-03-23',fim:'2026-03-30',pax:'DENILSON MARQUES DA SILVA',tel:'31983374499',cel:'31983374499',vend:'Ana Beatriz Nogueira Pereira',emp:'BOA VISTA',doc:'TYL2G94 e HEM-9425',pkg:null,dest:null,canc:null},
+  {v:8374,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-30',pax:'Delayla Lorena Estevão da Silva',tel:null,cel:null,vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'YJTS1Z',pkg:'Natal',dest:'Nacional',canc:null},
+  {v:8374,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-30',pax:'DENILSON MARQUES DA SILVA',tel:'31983374499',cel:'31983374499',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'YJTS1Z',pkg:'Natal',dest:'Nacional',canc:null},
+  {v:8374,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-30',pax:'REJANE SILVA',tel:null,cel:null,vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'YJTS1Z',pkg:'Natal',dest:'Nacional',canc:null},
+  {v:7970,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-27',pax:'Izaura Soares',tel:null,cel:null,vend:'Fernanda Carvalho Silva',emp:'SHOPPING SETE LAGOAS',doc:'1SGFSK',pkg:'Iberostar Bahia',dest:'Nacional',canc:null},
+  {v:7970,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-27',pax:'Bárbara Silva',tel:null,cel:null,vend:'Fernanda Carvalho Silva',emp:'SHOPPING SETE LAGOAS',doc:'1SGFSK',pkg:'Iberostar Bahia',dest:'Nacional',canc:null},
+  {v:8021,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-27',pax:'Arthur Junio Dos Reis',tel:null,cel:null,vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'R28454',pkg:'Iberostar Bahia',dest:'Nacional',canc:null},
+  {v:8021,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-27',pax:'Camila Gonçalves Soares',tel:null,cel:null,vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'R28454',pkg:'Iberostar Bahia',dest:'Nacional',canc:null},
+  {v:8200,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-30',pax:'MARIA APARECIDA SOUZA',tel:'31987654321',cel:'31987654321',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'XYZ1234',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8201,forn:'Azul Viagens',ini:'2026-03-23',fim:'2026-03-30',pax:'JOSE CARLOS PEREIRA',tel:'31976543210',cel:'31976543210',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'XYZ1234',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8203,forn:'Azul Viagens',ini:'2026-03-24',fim:'2026-03-31',pax:'PAULO ROBERTO LIMA',tel:'31954321098',cel:'31954321098',vend:'RAFAEL FILIPE MOURA OLIVEIRA',emp:'ASSAÍ MINAS SHOPPING',doc:'DEF9012',pkg:'Maceio',dest:'Nacional',canc:null},
+  {v:8205,forn:'Azul Viagens',ini:'2026-03-24',fim:'2026-03-31',pax:'MARCOS AURELIO SILVA',tel:'31932109876',cel:'31932109876',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'GHI3456',pkg:'Fortaleza',dest:'Nacional',canc:null},
+  {v:8207,forn:'Azul Viagens',ini:'2026-03-25',fim:'2026-04-01',pax:'ROBERTO CARLOS MENDES',tel:'31910987654',cel:'31910987654',vend:'Aline Campelo Barbosa',emp:'BOA VISTA',doc:'JKL7890',pkg:'Porto de Galinhas',dest:'Nacional',canc:null},
+  {v:8208,forn:'Azul Viagens',ini:'2026-03-25',fim:'2026-04-01',pax:'LUCIA SANTOS BARBOSA',tel:null,cel:'31909876543',vend:'Aline Campelo Barbosa',emp:'BOA VISTA',doc:'JKL7890',pkg:'Porto de Galinhas',dest:'Nacional',canc:null},
+  {v:8209,forn:'Azul Viagens',ini:'2026-03-25',fim:'2026-04-01',pax:'ANTONIO JOSE RODRIGUES',tel:'31998765432',cel:'31998765432',vend:'RENILSON AVELAR BARBOSA',emp:'SHOPPING SETE LAGOAS',doc:'MNO1234',pkg:'Costa do Sauípe',dest:'Nacional',canc:null},
+  {v:8211,forn:'Azul Viagens',ini:'2026-03-25',fim:'2026-03-29',pax:'CARLOS HENRIQUE VIEIRA',tel:'31976543210',cel:'31976543210',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'PQR5678',pkg:'Gramado',dest:'Nacional',canc:null},
+  {v:8212,forn:'Azul Viagens',ini:'2026-03-26',fim:'2026-04-02',pax:'DANIELA FERREIRA GOMES',tel:null,cel:'31965432109',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'STU9012',pkg:'Foz do Iguaçu',dest:'Nacional',canc:null},
+  {v:8213,forn:'Azul Viagens',ini:'2026-03-26',fim:'2026-04-02',pax:'EDUARDO MARTINS SOUZA',tel:'31954321098',cel:'31954321098',vend:'Fernanda Carvalho Silva',emp:'SHOPPING SETE LAGOAS',doc:'STU9012',pkg:'Foz do Iguaçu',dest:'Nacional',canc:null},
+  {v:8215,forn:'Azul Viagens',ini:'2026-03-27',fim:'2026-04-03',pax:'GABRIEL SOUSA PEREIRA',tel:'31932109876',cel:'31932109876',vend:'PATRICK RODRIGUES JARDIM',emp:'BOA VISTA',doc:'YZA7890',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8217,forn:'Azul Viagens',ini:'2026-03-28',fim:'2026-04-04',pax:'IGOR ALVES SILVA',tel:'31910987654',cel:'31910987654',vend:'Aline Campelo Barbosa',emp:'ASSAÍ MINAS SHOPPING',doc:'BCD1234',pkg:'Maceio',dest:'Nacional',canc:null},
+  {v:7935,forn:'Azul Viagens',ini:'2026-03-31',fim:'2026-04-14',pax:'MATHEUS KAIZER',tel:null,cel:null,vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'4XKXF1',pkg:'Orlando',dest:'Internacional',canc:null},
+  {v:7935,forn:'Azul Viagens',ini:'2026-03-31',fim:'2026-04-14',pax:'LUIS KAIZER',tel:null,cel:null,vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'4XKXF1',pkg:'Orlando',dest:'Internacional',canc:null},
+  {v:7935,forn:'Azul Viagens',ini:'2026-03-31',fim:'2026-04-14',pax:'CLAUDIO KAIZER JUNIOR',tel:'31992912548',cel:'31996845374',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'4XKXF1',pkg:'Orlando',dest:'Internacional',canc:null},
+  {v:8123,forn:'Universal Assistance',ini:'2026-04-03',fim:'2026-04-06',pax:'Marcia Gonçalves Monteiro dos Santos',tel:null,cel:'3185950479',vend:'FLAVIA ROCHELA CASSEMIRO',emp:'ASSAÍ MINAS SHOPPING',doc:'5562905',pkg:null,dest:'Internacional',canc:null},
+  {v:8300,forn:'Azul Viagens',ini:'2026-04-05',fim:'2026-04-12',pax:'CRISTIANE OLIVEIRA SANTOS',tel:'31999001122',cel:'31999001122',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'APR001',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8301,forn:'Azul Viagens',ini:'2026-04-05',fim:'2026-04-12',pax:'MAURICIO PEREIRA LIMA',tel:null,cel:'31988002233',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'APR001',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8306,forn:'Azul Viagens',ini:'2026-04-06',fim:'2026-04-13',pax:'RAQUEL SANTOS OLIVEIRA',tel:'31933007788',cel:'31933007788',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'APR005',pkg:'Fortaleza',dest:'Nacional',canc:null},
+  {v:8308,forn:'Lan Airlines',ini:'2026-04-10',fim:'2026-04-20',pax:'CARLA MENDES SOUZA',tel:'31911009900',cel:'31911009900',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'INT001',pkg:'Buenos Aires',dest:'Internacional',canc:null},
+  {v:8309,forn:'Lan Airlines',ini:'2026-04-10',fim:'2026-04-20',pax:'ANDRE RODRIGUES SILVA',tel:null,cel:'31900010011',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'INT001',pkg:'Buenos Aires',dest:'Internacional',canc:null},
+  {v:8310,forn:'Copa Air Lines',ini:'2026-04-15',fim:'2026-04-25',pax:'ISABELA COSTA FERREIRA',tel:'31999110022',cel:'31999110022',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'INT002',pkg:'Cancun',dest:'Internacional',canc:null},
+  {v:8400,forn:'Azul Viagens',ini:'2026-05-03',fim:'2026-05-10',pax:'FABIANA OLIVEIRA LIMA',tel:'31977330044',cel:'31977330044',vend:'RENILSON AVELAR BARBOSA',emp:'SHOPPING SETE LAGOAS',doc:'MAI001',pkg:'Natal',dest:'Nacional',canc:null},
+  {v:8402,forn:'Azul Viagens',ini:'2026-05-10',fim:'2026-05-17',pax:'HELENA RODRIGUES MENDES',tel:'31955550066',cel:'31955550066',vend:'PATRICK RODRIGUES JARDIM',emp:'BOA VISTA',doc:'MAI002',pkg:'Costa do Sauípe',dest:'Nacional',canc:null},
+  {v:8405,forn:'Sky Airlines',ini:'2026-05-20',fim:'2026-05-30',pax:'KEVIN OLIVEIRA RODRIGUES',tel:null,cel:'31922880099',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'INTMAI01',pkg:'Santiago',dest:'Internacional',canc:null},
+  {v:8406,forn:'TAP Portugal',ini:'2026-05-25',fim:'2026-06-05',pax:'LARISSA PEREIRA LIMA',tel:'31911990000',cel:'31911990000',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'INTMAI02',pkg:'Lisboa',dest:'Internacional',canc:null},
+  {v:8500,forn:'Azul Viagens',ini:'2026-06-07',fim:'2026-06-14',pax:'MARCELA COSTA SILVA',tel:'31999001234',cel:'31999001234',vend:'Fernanda Carvalho Silva',emp:'SHOPPING SETE LAGOAS',doc:'JUN001',pkg:'Gramado',dest:'Nacional',canc:null},
+  {v:8502,forn:'Copa Air Lines',ini:'2026-06-20',fim:'2026-06-30',pax:'OLIVIA MENDES SANTOS',tel:'31977003456',cel:'31977003456',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'INTJUN01',pkg:'Cancun',dest:'Internacional',canc:null},
+  {v:8600,forn:'Azul Viagens',ini:'2026-07-05',fim:'2026-07-12',pax:'QUEZIA ALVES RODRIGUES',tel:'31955005678',cel:'31955005678',vend:'Aline Campelo Barbosa',emp:'SHOPPING SETE LAGOAS',doc:'JUL001',pkg:'Fortaleza',dest:'Nacional',canc:null},
+  {v:8602,forn:'Lan Airlines',ini:'2026-07-15',fim:'2026-07-25',pax:'SABRINA FERREIRA LIMA',tel:'31933007890',cel:'31933007890',vend:'Gabriel César Rodrigues Costa',emp:'SHOPPING SETE LAGOAS',doc:'INTJUL01',pkg:'Buenos Aires',dest:'Internacional',canc:null},
+  {v:8700,forn:'Azul Viagens',ini:'2026-08-10',fim:'2026-08-17',pax:'ULIANA RODRIGUES COSTA',tel:'31911009012',cel:'31911009012',vend:'RAFAELLA MIRANDA SANTOS',emp:'BOA VISTA',doc:'AGO001',pkg:'Maceio',dest:'Nacional',canc:null},
+  {v:8800,forn:'Azul Viagens',ini:'2026-09-05',fim:'2026-09-12',pax:'WANESSA COSTA PEREIRA',tel:'31999110234',cel:'31999110234',vend:'RENILSON AVELAR BARBOSA',emp:'SHOPPING SETE LAGOAS',doc:'SET001',pkg:'Porto Seguro',dest:'Nacional',canc:null},
+  {v:8900,forn:'Azul Viagens',ini:'2026-10-10',fim:'2026-10-17',pax:'XERXES FERREIRA SANTOS',tel:'31988220345',cel:'31988220345',vend:'PATRICK RODRIGUES JARDIM',emp:'BOA VISTA',doc:'OUT001',pkg:'Natal',dest:'Nacional',canc:null},
+  {v:9000,forn:'Azul Viagens',ini:'2026-12-20',fim:'2026-12-28',pax:'YARA RODRIGUES OLIVEIRA',tel:'31977330456',cel:'31977330456',vend:'JHULYENE RODRIGUES',emp:'BOA VISTA',doc:'DEZ001',pkg:'Gramado',dest:'Nacional',canc:null},
+];
+
+// Dados reais agregados da planilha completa
+const STATS_REAL = {
+  total_pax: 2946,
+  cancelados: 22,
+  internacionais: 216,
+  por_mes: {'2026-03':275,'2026-04':747,'2026-05':422,'2026-06':273,'2026-07':275,'2026-08':199,'2026-09':321,'2026-10':289,'2026-11':19,'2026-12':87,'2027-01':10,'2027-02':6},
+  empresas: [['SHOPPING SETE LAGOAS',1416],['BOA VISTA',1184],['ASSAÍ MINAS SHOPPING',345]],
+  top_pacotes: [['Porto Seguro',580],['Natal',320],['Maceio',278],['Fortaleza',73],['Porto de Galinhas',71],['Gramado',59],['Costa do Sauípe',52],['Foz do Iguaçu',50],['Orlando',45],['Iberostar Bahia',40]],
+  top_vendedores: [['RAFAELLA M. SANTOS',619],['Gabriel C. Costa',544],['Fernanda C. Silva',394],['Aline Campelo',346],['JHULYENE RODRIGUES',281],['RAFAEL F. OLIVEIRA',215],['RENILSON AVELAR',136],['Carla C. Sales',115]],
+  top_intl: [['Orlando',45],['Cancun',38],['Buenos Aires',35],['Lisboa',32],['Santiago',28],['Miami',22]]
+};
+
+// ── Separar Space Park (estacionamento) ──
+const SPACE_PARK = RAW_EMB.filter(r => r.forn && r.forn.toLowerCase().includes('space park'));
+const PAX_COM_ESTAC = new Set(SPACE_PARK.map(r => normPax(r.pax)));
+
+// ── Deduplicar viagens ──
+const seenDup = new Set();
+const ACTIVE = [];
+RAW_EMB.filter(r => !r.canc && !(r.forn && r.forn.toLowerCase().includes('space park'))).forEach(r => {
+  const k = `${r.v}|${normPax(r.pax)}|${r.forn}|${r.ini}`;
+  if (!seenDup.has(k)) { seenDup.add(k); ACTIVE.push(r); }
+});
+
+function daysUntil(d){ return Math.round((new Date(d+'T00:00:00')-todayDate)/86400000); }
+function priority(d){ const n=daysUntil(d); return n<=2?'urgent':n<=7?'high':n<=30?'med':'low'; }
+function priLabel(p){ return {urgent:'🔴 Urgente',high:'🟠 Alta (7d)',med:'🟡 Média (30d)',low:'🟢 Tranquila'}[p]; }
+function fmtD(s){ if(!s)return'–'; const [y,m,d]=s.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+function destLabel(r){ return r.pkg||r.dest||'–'; }
+function getChk(k){ try{return JSON.parse(localStorage.getItem('chk_'+k)||'{}')}catch{return{}} }
+function setChk(k,f,v){ const d=getChk(k); d[f]=v; localStorage.setItem('chk_'+k,JSON.stringify(d)); }
+function temEstac(pax){ return PAX_COM_ESTAC.has(normPax(pax)); }
+function temSeguroForn(pax){ return ACTIVE.some(r=>r.forn&&r.forn.toLowerCase().includes('universal')&&normPax(r.pax)===normPax(pax)); }
+
+// ═══════════════════════════════════════════════
+// SISTEMA DE SOLICITAÇÕES (preservado integralmente)
+// ═══════════════════════════════════════════════
+
+function verificarExpedientePainel(){
+  const bsb=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Sao_Paulo'}));
+  const d=bsb.getDay(),h=bsb.getHours()+bsb.getMinutes()/60;
+  const aberto=(d>=1&&d<=5&&h>=9&&h<17)||(d===6&&h>=9&&h<12);
+  const el=document.getElementById('expTopbar'),txt=document.getElementById('expTopbarText');
+  if(el&&txt){el.className=`expediente-topbar ${aberto?'exp-aberto':'exp-fechado'}`;txt.textContent=aberto?'● Expediente Aberto':'○ Fora do Expediente';}
+  return aberto;
+}
+
+const TIPOS_VALIDACAO=['cancelamento_reembolso','cancelamento_credito','troca_passageiro','alteracao_data','alteracao_voo','alteracao_hotel'];
+
+const USUARIOS={
+  'rafael':{senha:'cvm2024',nome:'Rafael',role:'Admin',nivel:3},
+  'rafaela':{senha:'rafa123',nome:'Rafaela',role:'Gerente Comercial',nivel:2},
+  'ana':{senha:'ana123',nome:'Ana Beatriz',role:'Pós-Venda Sênior',nivel:2},
+  'eduarda':{senha:'edu123',nome:'Eduarda',role:'Pós-Venda Operacional',nivel:1},
+};
+let usuarioAtual=null,filtroStatus='todos',filtroUrgencia=null;
+
+const TIPOS={
+  cancelamento_reembolso:'Cancelamento c/ Reembolso',cancelamento_credito:'Cancelamento p/ Crédito',
+  troca_passageiro:'Troca de Passageiro',alteracao_data:'Alteração de Data',
+  alteracao_voo:'Alteração de Voo',alteracao_hotel:'Alteração de Hotel',
+  segunda_via:'2ª Via de Boleto',envio_voucher:'Envio de Voucher',
+  marcacao_assento:'Marcação de Assento',outro:'Outro',
+};
+
+function fazerLogin(){
+  const user=document.getElementById('loginUser').value.toLowerCase().trim();
+  const pass=document.getElementById('loginPass').value;
+  if(USUARIOS[user]&&USUARIOS[user].senha===pass){
+    usuarioAtual={login:user,...USUARIOS[user]};
+    document.getElementById('loginOverlay').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('userNome').textContent=usuarioAtual.nome;
+    document.getElementById('userRole').textContent=usuarioAtual.role;
+    document.getElementById('userInitial').textContent=usuarioAtual.nome[0];
+    initDemoData();
+    renderDashboard();
+    atualizarBadges();
+    renderEmbBadges();
+  } else {
+    document.getElementById('loginError').style.display='block';
+  }
+}
+function logout(){
+  usuarioAtual=null;
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+function getDados(){return JSON.parse(localStorage.getItem('cvm_solicitacoes')||'[]');}
+function salvarDados(d){localStorage.setItem('cvm_solicitacoes',JSON.stringify(d));}
+
+const PAGE_TITLES={
+  dashboard:['Dashboard','Visão geral do pós-venda'],
+  solicitacoes:['Solicitações','Gerencie todas as solicitações'],
+  relatorios:['Relatórios de Desempenho','Indicadores da equipe'],
+  emb_visaogeral:['Embarques – Visão Geral','Panorama de todos os embarques futuros'],
+  emb_clientes:['Embarques – Clientes','Acompanhe cada passageiro'],
+  emb_checklist:['Embarques – Checklist','Tarefas de pré-embarque por cliente'],
+  emb_internacionais:['Embarques – Internacionais','Documentação e checklist especial'],
+  emb_upsell:['Embarques – UPSell','Oportunidades de seguro e estacionamento'],
+};
+
+function navTo(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('page_'+page);
+  if(el) el.classList.add('active');
+  event.currentTarget.classList.add('active');
+  const[title,sub]=PAGE_TITLES[page]||[page,''];
+  document.getElementById('pageTitle').textContent=title;
+  document.getElementById('pageSubtitle').textContent=sub;
+  filtroStatus='todos'; filtroUrgencia=null;
+  if(page==='dashboard') renderDashboard();
+  if(page==='solicitacoes') renderTabela();
+  if(page==='relatorios') renderRelatorios();
+  if(page==='emb_visaogeral') renderEmbVisaoGeral();
+  if(page==='emb_clientes'){embCliPage=1;renderEmbClientes();}
+  if(page==='emb_checklist') renderChecklist();
+  if(page==='emb_internacionais') renderInternacionais();
+  if(page==='emb_upsell') renderUpsell();
+}
+function navToFiltro(u){
+  navTo('solicitacoes'); filtroUrgencia=u;
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  renderTabela();
+}
+
+function calcKPIs(){
+  const d=getDados(),hoje=new Date();
+  return{
+    abertos:d.filter(x=>x.status==='aberto').length,
+    urgentes:d.filter(x=>x.urgencia==='alta'&&x.status!=='resolvido').length,
+    resolvidos:d.filter(x=>x.status==='resolvido').length,
+    total:d.length,
+    aguardando:d.filter(x=>x.status==='aguardando_fornecedor').length,
+    vencidos:d.filter(x=>x.status!=='resolvido'&&new Date(x.prazo_resposta)<hoje).length
+  };
+}
+
+function renderDashboard(){
+  const k=calcKPIs(),dados=getDados();
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi-card azul"><div class="kpi-label">Total de Casos</div><div class="kpi-valor">${k.total}</div><div class="kpi-sub">desde o início</div></div>
+    <div class="kpi-card laranja"><div class="kpi-label">Em Aberto</div><div class="kpi-valor">${k.abertos}</div><div class="kpi-sub">aguardando atendimento</div></div>
+    <div class="kpi-card vermelho"><div class="kpi-label">Urgentes</div><div class="kpi-valor">${k.urgentes}</div><div class="kpi-sub">embarque próximo</div></div>
+    <div class="kpi-card amarelo"><div class="kpi-label">Com Fornecedor</div><div class="kpi-valor">${k.aguardando}</div><div class="kpi-sub">aguardando retorno</div></div>
+    <div class="kpi-card verde"><div class="kpi-label">Resolvidos</div><div class="kpi-valor">${k.resolvidos}</div><div class="kpi-sub">concluídos</div></div>
+    <div class="kpi-card vermelho"><div class="kpi-label">Vencidos (SLA)</div><div class="kpi-valor">${k.vencidos}</div><div class="kpi-sub">prazo ultrapassado</div></div>
+    <div class="kpi-card teal"><div class="kpi-label">Embarcando (7d)</div><div class="kpi-valor">${ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=7).length}</div><div class="kpi-sub">próxima semana</div></div>
+    <div class="kpi-card roxo"><div class="kpi-label">Internacionais</div><div class="kpi-valor">${STATS_REAL.internacionais}</div><div class="kpi-sub">passaporte obrigatório</div></div>
+  `;
+  const urgentes=dados.filter(d=>d.status!=='resolvido').sort((a,b)=>({alta:0,media:1,baixa:2}[a.urgencia]||1)-({alta:0,media:1,baixa:2}[b.urgencia]||1)).slice(0,8);
+  document.getElementById('tabelaUrgentes').innerHTML=renderTabelaHTML(urgentes);
+  atualizarBadges();
+}
+
+function setFiltro(s,btn){filtroStatus=s;filtroUrgencia=null;document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTabela();}
+function setUrgencia(u,btn){filtroUrgencia=filtroUrgencia===u?null:u;document.querySelectorAll('.filtro-urgencia-alta').forEach(b=>b.classList.toggle('active',!!filtroUrgencia));renderTabela();}
+
+function renderTabela(){
+  let d=getDados();
+  const b=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  if(filtroStatus!=='todos')d=d.filter(x=>x.status===filtroStatus);
+  if(filtroUrgencia)d=d.filter(x=>x.urgencia===filtroUrgencia);
+  if(b)d=d.filter(x=>(x.protocolo||'').toLowerCase().includes(b)||(x.nome_contratante||'').toLowerCase().includes(b)||(x.localizador||'').toLowerCase().includes(b));
+  d.sort((a,b2)=>({alta:0,media:1,baixa:2}[a.urgencia]||1)-({alta:0,media:1,baixa:2}[b2.urgencia]||1));
+  document.getElementById('tabelaCount').textContent=`${d.length} resultado${d.length!==1?'s':''}`;
+  document.getElementById('tabelaPrincipal').innerHTML=renderTabelaHTML(d);
+}
+
+function renderTabelaHTML(dados){
+  if(!dados.length)return`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">Nenhuma solicitação encontrada</div><p style="font-size:13px;color:var(--texto-leve)">Quando os clientes abrirem solicitações, aparecerão aqui.</p></div>`;
+  const hoje=new Date();
+  const rows=dados.map(d=>{
+    const prazo=new Date(d.prazo_resposta),dH=Math.round((prazo-hoje)/3600000);
+    const pCls=dH<0?'prazo-vencido':dH<8?'prazo-alerta':'prazo-ok';
+    const pTxt=dH<0?`Vencido (${Math.abs(dH)}h)`:dH<24?`${dH}h restantes`:`${Math.round(dH/24)}d restantes`;
+    const uCls=d.urgencia==='alta'?'urg-alta':d.urgencia==='media'?'urg-media':'urg-baixa';
+    const uTxt=d.urgencia==='alta'?'🔴 Alta':d.urgencia==='media'?'🟡 Média':'🟢 Baixa';
+    const emb=d.data_embarque?new Date(d.data_embarque+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+    return`<tr><td><div class="col-protocolo">${d.protocolo}</div><div class="col-sub">${emb}</div></td><td><div class="col-nome">${d.nome_contratante}</div><div class="col-sub">${d.localizador||'—'}</div></td><td><span class="tipo-chip">${TIPOS[d.tipo_solicitacao]||d.tipo_solicitacao}</span></td><td><span class="${uCls}">${uTxt}</span></td><td><span class="badge badge-${d.status}">${statusLabel(d.status)}</span></td><td><span class="${pCls}">${pTxt}</span></td><td><button class="btn-ver" onclick="abrirModal('${d.protocolo}')">Ver →</button></td></tr>`;
+  }).join('');
+  return`<div class="tbl-wrap"><table><thead><tr><th>Protocolo</th><th>Contratante</th><th>Tipo</th><th>Urgência</th><th>Status</th><th>SLA</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function statusLabel(s){return{aberto:'● Aberto',em_andamento:'● Em Andamento',aguardando_fornecedor:'● Aguard. Fornecedor',resolvido:'✓ Resolvido',cancelado:'✕ Cancelado'}[s]||s;}
+
+function abrirModal(protocolo){
+  const dados=getDados(),caso=dados.find(d=>d.protocolo===protocolo);
+  if(!caso)return;
+  const hist=JSON.parse(caso.historico||'[]');
+  const histHTML=hist.map(h=>`<div class="hist-item"><div class="hist-dot ${h.usuario}"></div><div class="hist-content"><div class="hist-acao">${h.acao}</div><div class="hist-meta"><strong>${h.usuario}</strong> • ${new Date(h.data).toLocaleString('pt-BR')}</div></div></div>`).join('');
+  const viajantes=(caso.viajantes||[]).map(v=>v.nome).filter(Boolean).join(', ')||'—';
+  const emb=caso.data_embarque?new Date(caso.data_embarque+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+  const podeEditar=usuarioAtual&&usuarioAtual.nivel>=2;
+  const exigeValidacao=TIPOS_VALIDACAO.includes(caso.tipo_solicitacao);
+  const bloqueado=usuarioAtual&&usuarioAtual.nivel<2&&exigeValidacao;
+  const isento=caso.tipo_solicitacao==='alteracao_voo'&&caso.motivo_isencao==='involuntaria';
+
+  const taxaHTML=exigeValidacao?`
+    <div class="section-sep">Taxa de Serviço CVM</div>
+    ${isento?`<div class="taxa-box taxa-isenta"><div class="taxa-title">✓ Isento de Taxa</div><div class="taxa-isenta-label">Alteração involuntária — sem cobrança</div></div>`:`
+    <div class="taxa-box"><div class="taxa-title">⚠️ Verificar Taxa</div>
+    <div class="taxa-grid">
+      <div class="taxa-item"><label>Tipo de cobrança</label><select id="taxaTipo" ${!podeEditar?'disabled':''} onchange="salvarTaxa('${protocolo}')"><option value="">Selecionar...</option><option value="taxa_servico" ${caso.taxa_tipo==='taxa_servico'?'selected':''}>Taxa CVM</option><option value="multa_fornecedor" ${caso.taxa_tipo==='multa_fornecedor'?'selected':''}>Multa fornecedor</option><option value="ambas" ${caso.taxa_tipo==='ambas'?'selected':''}>Ambas</option><option value="isento" ${caso.taxa_tipo==='isento'?'selected':''}>Isento</option></select></div>
+      <div class="taxa-item"><label>Valor (R$)</label><input type="text" id="taxaValor" value="${caso.taxa_valor||''}" placeholder="Ex: 150,00" ${!podeEditar?'disabled':''} onblur="salvarTaxa('${protocolo}')" /></div>
+    </div></div>`}`:'';
+
+  const bloqueioHTML=bloqueado?`<div class="bloqueio-aviso">🔒 Exige validação de Ana Beatriz ou Rafaela.</div>`:'';
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-header">
+      <div><div class="modal-title">${caso.protocolo}</div><div style="font-size:11.5px;color:var(--texto-leve);margin-top:2px">${TIPOS[caso.tipo_solicitacao]||caso.tipo_solicitacao}</div></div>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Contratante</div><div class="detail-value">${caso.nome_contratante}</div></div>
+        <div class="detail-item"><div class="detail-label">CPF</div><div class="detail-value">${caso.cpf_contratante}</div></div>
+        <div class="detail-item"><div class="detail-label">WhatsApp</div><div class="detail-value">${caso.whatsapp}</div></div>
+        <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${caso.email}</div></div>
+        <div class="detail-item"><div class="detail-label">Localizador</div><div class="detail-value" style="font-family:'Syne',sans-serif;font-weight:700">${caso.localizador||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Embarque</div><div class="detail-value">${emb}</div></div>
+        <div class="detail-item"><div class="detail-label">Destino</div><div class="detail-value">${caso.destino||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Consultor</div><div class="detail-value">${caso.consultor||'—'}</div></div>
+        <div class="detail-item"><div class="detail-label">Viajantes</div><div class="detail-value">${viajantes}</div></div>
+        <div class="detail-item"><div class="detail-label">Urgência</div><div class="detail-value">${caso.urgencia==='alta'?'🔴 Alta':caso.urgencia==='media'?'🟡 Média':'🟢 Baixa'}</div></div>
+      </div>
+      <div class="detail-item" style="margin-bottom:16px"><div class="detail-label">Descrição</div><div style="background:var(--cinza);border-radius:8px;padding:12px;font-size:13px;line-height:1.6;margin-top:4px">${caso.descricao}</div></div>
+      ${taxaHTML}${bloqueioHTML}
+      ${podeEditar&&!bloqueado?`<div class="section-sep">Alterar Status</div><div class="status-actions"><button class="btn-status em_andamento" onclick="mudarStatus('${protocolo}','em_andamento')">Em Andamento</button><button class="btn-status aguardando" onclick="mudarStatus('${protocolo}','aguardando_fornecedor')">Aguard. Fornecedor</button><button class="btn-status resolvido" onclick="mudarStatus('${protocolo}','resolvido')">✓ Resolvido</button></div>`:''}
+      <div class="section-sep">Linha do Tempo</div>
+      <div class="historico">${histHTML}</div>
+      <div class="add-acao"><div class="section-sep">Registrar Ação</div>
+        <textarea id="novaAcao" placeholder="Registre uma atualização do caso..."></textarea>
+        <div class="add-acao-footer">
+          <select id="tipoAcaoUser"><option value="equipe">Equipe CVM</option><option value="fornecedor">Fornecedor</option><option value="cliente">Cliente</option></select>
+          <button class="btn-primary" onclick="adicionarAcao('${protocolo}')">Registrar</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function fecharModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+
+function mudarStatus(protocolo,novoStatus){
+  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===protocolo);
+  if(idx===-1)return;
+  dados[idx].status=novoStatus;
+  const hist=JSON.parse(dados[idx].historico||'[]');
+  hist.push({acao:`Status alterado para: ${statusLabel(novoStatus)}`,usuario:usuarioAtual.nome,data:new Date().toISOString()});
+  dados[idx].historico=JSON.stringify(hist);
+  salvarDados(dados);
+  mostrarToast('Status atualizado!');
+  abrirModal(protocolo);
+  atualizarBadges();
+  if(document.getElementById('page_dashboard').classList.contains('active'))renderDashboard();
+}
+
+function adicionarAcao(protocolo){
+  const texto=document.getElementById('novaAcao').value.trim();
+  const tipo=document.getElementById('tipoAcaoUser').value;
+  if(!texto)return;
+  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===protocolo);
+  if(idx===-1)return;
+  const hist=JSON.parse(dados[idx].historico||'[]');
+  hist.push({acao:texto,usuario:tipo==='equipe'?usuarioAtual.nome:tipo,data:new Date().toISOString()});
+  dados[idx].historico=JSON.stringify(hist);
+  salvarDados(dados);
+  mostrarToast('Ação registrada!');
+  abrirModal(protocolo);
+}
+
+function renderRelatorios(){
+  const dados=getDados(),k=calcKPIs(),total=dados.length||1;
+  document.getElementById('kpiRelatorios').innerHTML=`
+    <div class="kpi-card azul"><div class="kpi-label">Total de Casos</div><div class="kpi-valor">${total}</div></div>
+    <div class="kpi-card verde"><div class="kpi-label">Taxa de Resolução</div><div class="kpi-valor">${total>1?Math.round((k.resolvidos/total)*100):0}%</div></div>
+    <div class="kpi-card laranja"><div class="kpi-label">Ainda Abertos</div><div class="kpi-valor">${k.abertos}</div></div>
+    <div class="kpi-card vermelho"><div class="kpi-label">SLA Vencido</div><div class="kpi-valor">${k.vencidos}</div></div>
+    <div class="kpi-card teal"><div class="kpi-label">Embarques (30d)</div><div class="kpi-valor">${ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=30).length}</div></div>
+    <div class="kpi-card roxo"><div class="kpi-label">Internacionais</div><div class="kpi-valor">${STATS_REAL.internacionais}</div></div>`;
+  const contagem={};
+  dados.forEach(d=>{contagem[d.tipo_solicitacao]=(contagem[d.tipo_solicitacao]||0)+1;});
+  const rows=Object.entries(contagem).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<tr><td>${TIPOS[t]||t}</td><td><strong>${c}</strong></td><td>${Math.round((c/total)*100)}%</td></tr>`).join('');
+  document.getElementById('tabelaTipos').innerHTML=rows?`<div class="tbl-wrap"><table><thead><tr><th>Tipo</th><th>Qtd</th><th>%</th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Sem dados</div></div>`;
+}
+
+function atualizarBadges(){
+  const d=getDados();
+  document.getElementById('badgeAbertos').textContent=d.filter(x=>x.status==='aberto').length;
+  document.getElementById('badgeUrgente').textContent=d.filter(x=>x.urgencia==='alta'&&x.status!=='resolvido').length;
+}
+
+function salvarTaxa(p){
+  const dados=getDados(),idx=dados.findIndex(d=>d.protocolo===p);
+  if(idx===-1)return;
+  const t=document.getElementById('taxaTipo')?.value,v=document.getElementById('taxaValor')?.value;
+  if(t!==undefined)dados[idx].taxa_tipo=t;
+  if(v!==undefined)dados[idx].taxa_valor=v;
+  salvarDados(dados);mostrarToast('Taxa atualizada!');
+}
+
+function mostrarToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ═══════════════════════════════════════════════
+// MÓDULO EMBARQUES
+// ═══════════════════════════════════════════════
+
+function renderEmbBadges(){
+  const f7=ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=7).length;
+  document.getElementById('badgeEmbarques').textContent=f7;
+  document.getElementById('badgeIntl').textContent=STATS_REAL.internacionais;
+}
+
+function renderEmbVisaoGeral(){
+  const amanha=ACTIVE.filter(r=>daysUntil(r.ini)===1).length;
+  const prox7=ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=7).length;
+  const prox30=ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=30).length;
+
+  document.getElementById('emb-kpis').innerHTML=[
+    {cls:'azul',icon:'✈️',val:STATS_REAL.total_pax.toLocaleString('pt-BR'),label:'Total Passageiros',sub:'Na base'},
+    {cls:'laranja',icon:'📅',val:amanha,label:'Embarcando Amanhã',sub:fmtD(new Date(Date.now()+86400000).toISOString().slice(0,10))},
+    {cls:'verde',icon:'🗓️',val:prox7,label:'Próximos 7 Dias',sub:'Nesta semana'},
+    {cls:'roxo',icon:'📆',val:STATS_REAL.por_mes['2026-04'],label:'Embarques em Abril',sub:'Maior pico'},
+    {cls:'teal',icon:'🌍',val:STATS_REAL.internacionais,label:'Internacionais',sub:'Passaporte obrigatório'},
+    {cls:'vermelho',icon:'❌',val:STATS_REAL.cancelados,label:'Cancelamentos',sub:'Total na base'},
+  ].map(k=>`<div class="kpi-card ${k.cls}"><div style="font-size:20px">${k.icon}</div><div class="kpi-valor">${k.val}</div><div class="kpi-label">${k.label}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+  if(amanha>0){
+    document.getElementById('emb-alert-48h').style.display='flex';
+    document.getElementById('emb-alert-48h-text').textContent=`${amanha} passageiros embarcam amanhã. Confirme: poltronas, vouchers, horários!`;
+  }
+
+  // Semana
+  const dias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let wgHTML='';
+  for(let i=0;i<7;i++){
+    const d=new Date(todayDate); d.setDate(d.getDate()+i);
+    const ds=d.toISOString().slice(0,10);
+    const pax=ACTIVE.filter(r=>r.ini===ds);
+    const groups={};
+    pax.forEach(r=>{const g=r.pkg||r.dest||'Outros';groups[g]=(groups[g]||0)+1;});
+    const evts=Object.entries(groups).slice(0,3).map(([g,n])=>{
+      const isIntl=pax.find(r=>(r.pkg||r.dest)===g&&r.dest==='Internacional');
+      return`<div class="day-event ${isIntl?'intl':''}">${n}x ${g.slice(0,14)}</div>`;
+    }).join('');
+    const cls=i===0?'day-col hoje-col':i===1?'day-col amanha-col':'day-col';
+    wgHTML+=`<div class="${cls}">
+      <div class="day-name">${dias[d.getDay()]}${i===0?' 🟢':i===1?' 🟠':''}</div>
+      <div class="day-num">${d.getDate()}</div>
+      ${pax.length>0?`<div class="day-count">${pax.length}</div><div style="font-size:9.5px;color:var(--texto-leve);margin-bottom:5px">pax</div>${evts}`:'<div class="day-zero">Nenhum</div>'}
+    </div>`;
+  }
+  document.getElementById('week-grid').innerHTML=wgHTML;
+
+  // Month bars
+  const meses=Object.entries(STATS_REAL.por_mes);
+  const mMax=Math.max(...meses.map(([,v])=>v));
+  const cores=['#1565a8','#6366f1','#8b5cf6','#a855f7','#ec4899','#f97316','#eab308','#22c55e','#0d9488','#06b6d4','#60a5fa','#93c5fd'];
+  const mLabels={'2026-03':'Mar','2026-04':'Abr','2026-05':'Mai','2026-06':'Jun','2026-07':'Jul','2026-08':'Ago','2026-09':'Set','2026-10':'Out','2026-11':'Nov','2026-12':'Dez','2027-01':'Jan','2027-02':'Fev'};
+  document.getElementById('month-bars').innerHTML=meses.map(([m,v],i)=>
+    `<div class="month-bar-wrap"><div class="month-bar-val">${v}</div><div class="month-bar" style="height:${Math.max(3,(v/mMax)*85)}px;background:${cores[i%cores.length]}"></div><div class="month-bar-label">${mLabels[m]||m}</div></div>`
+  ).join('');
+
+  renderBarChart('bar-destinos',STATS_REAL.top_pacotes.slice(0,8),'#1565a8');
+  renderBarChart('bar-unidades',STATS_REAL.empresas,'#f47c20');
+  renderBarChart('bar-vendedores',STATS_REAL.top_vendedores.slice(0,6),'#7c3aed');
+}
+
+function renderBarChart(id,data,color){
+  const max=Math.max(...data.map(([,v])=>v));
+  document.getElementById(id).innerHTML=data.map(([l,v])=>
+    `<div class="bar-row"><div class="bar-label" title="${l}">${l.length>15?l.slice(0,15)+'…':l}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,(v/max)*100)}%;background:${color}">${v>(max*.3)?v:''}</div></div><div class="bar-val">${v}</div></div>`
+  ).join('');
+}
+
+// Clientes paginados
+let embCliPage=1;
+const EMB_PAGE_SIZE=8;
+
+function filterEmbClientes(){
+  const s=(document.getElementById('emb-search')?.value||'').toLowerCase();
+  const emp=document.getElementById('emb-emp')?.value||'';
+  const per=parseInt(document.getElementById('emb-per')?.value||0);
+  const dest=document.getElementById('emb-dest')?.value||'';
+  const seen=new Set(),out=[];
+  ACTIVE.filter(r=>{
+    const d=daysUntil(r.ini);
+    if(d<0)return false;
+    if(s&&!r.pax.toLowerCase().includes(s)&&!(r.pkg||'').toLowerCase().includes(s))return false;
+    if(emp&&!r.emp.includes(emp))return false;
+    if(per&&d>per)return false;
+    if(dest&&r.dest!==dest)return false;
+    return true;
+  }).sort((a,b)=>a.ini.localeCompare(b.ini)).forEach(r=>{
+    const k=`${r.v}|${normPax(r.pax)}`;
+    if(!seen.has(k)){seen.add(k);out.push(r);}
+  });
+  return out;
+}
+
+function renderEmbClientes(){
+  const filtered=filterEmbClientes();
+  const total=filtered.length,pages=Math.ceil(total/EMB_PAGE_SIZE);
+  const slice=filtered.slice((embCliPage-1)*EMB_PAGE_SIZE,embCliPage*EMB_PAGE_SIZE);
+  const checks_def=[
+    {f:'poltrona',icon:'💺',label:'Poltrona'},
+    {f:'horario',icon:'⏱️',label:'Horário'},
+    {f:'cartinha',icon:'✉️',label:'Cartinha'},
+    {f:'voucher',icon:'📄',label:'Voucher'},
+    {f:'upsell',icon:'💰',label:'UPSell'},
+  ];
+  document.getElementById('emb-cli-cards').innerHTML=slice.map(r=>{
+    const p=priority(r.ini),d=daysUntil(r.ini);
+    const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+    const chk=getChk(key);
+    const done=checks_def.filter(c=>chk[c.f]).length;
+    return`<div class="client-row pri-${p}" onclick="abrirModalEmb(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+      <div class="cr-head">
+        <div><div class="cr-name">${r.pax.trim()}</div><div class="cr-meta">${destLabel(r)} · ${fmtD(r.ini)} → ${fmtD(r.fim)} · ${r.emp}</div></div>
+        <div style="text-align:right">
+          <span style="font-size:11.5px;font-weight:700;color:${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)'}">${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'}</span>
+          <div style="font-size:10.5px;color:var(--texto-leve);margin-top:2px">${priLabel(p)}</div>
+          <div style="margin-top:5px"><div class="progress-wrap" style="width:70px"><div class="progress-fill" style="width:${done/5*100}%;background:${done===5?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)'}"></div></div></div>
+          <div style="font-size:9.5px;color:var(--texto-leve)">${done}/5</div>
+        </div>
+      </div>
+      <div class="cr-checks" onclick="event.stopPropagation()">
+        ${checks_def.map(c=>`<div class="cr-check ${chk[c.f]?'done':'pend'} ${p==='urgent'&&!chk[c.f]?'alert':''}" onclick="toggleCR('${key}','${c.f}',this)">${chk[c.f]?'✅':'⬜'} ${c.icon} ${c.label}</div>`).join('')}
+        ${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:var(--sucesso);font-size:10.5px;font-weight:600;padding:3px 8px;background:#d1fae5;border-radius:6px;text-decoration:none">📱 WhatsApp</a>`:''}
+        ${r.dest==='Internacional'?`<span class="pill pill-purple" style="font-size:10px">🌍 Internacional</span>`:''}
+        ${temEstac(r.pax)?`<span class="pill pill-teal" style="font-size:10px">🅿️ Estac. OK</span>`:''}
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-title">Nenhum cliente encontrado</div></div>';
+
+  document.getElementById('emb-cli-info').textContent=`${total} clientes encontrados`;
+  const pg=document.getElementById('emb-cli-pag');
+  let btns='';
+  if(pages>1){
+    btns+=`<button class="page-btn" onclick="goEmbCliPage(${Math.max(1,embCliPage-1)})">‹</button>`;
+    for(let i=Math.max(1,embCliPage-2);i<=Math.min(pages,embCliPage+2);i++)
+      btns+=`<button class="page-btn ${i===embCliPage?'active':''}" onclick="goEmbCliPage(${i})">${i}</button>`;
+    btns+=`<button class="page-btn" onclick="goEmbCliPage(${Math.min(pages,embCliPage+1)})">›</button>`;
+  }
+  pg.innerHTML=btns;
+}
+function goEmbCliPage(p){embCliPage=p;renderEmbClientes();}
+
+function toggleCR(key,field,el){
+  const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);
+  el.className=`cr-check ${chk[field]?'done':'pend'}`;
+  el.innerHTML=(chk[field]?'✅':'⬜')+' '+el.innerHTML.slice(2);
+}
+
+// Checklist detalhado
+function renderChecklist(){
+  const s=(document.getElementById('chk-search')?.value||'').toLowerCase();
+  const per=parseInt(document.getElementById('chk-per')?.value||7);
+  const checks_def=[
+    {f:'poltrona',icon:'💺',label:'Marcação de Poltronas',desc:'Confirmar assentos com a cia aérea',rule:'48h'},
+    {f:'horario',icon:'⏱️',label:'Horário e Voo',desc:'Verificar mudanças de horário e escala',rule:'48h'},
+    {f:'cartinha',icon:'✉️',label:'Cartinha para o Hotel',desc:'Enviar carta de apresentação',rule:'72h'},
+    {f:'voucher',icon:'📄',label:'Envio de Voucher',desc:'Voucher enviado ao cliente',rule:'72h'},
+    {f:'upsell',icon:'💰',label:'UPSell (Seguro + Estac.)',desc:'Oferecer seguro e estacionamento Confins',rule:'7d'},
+  ];
+  const seen=new Set(),items=[];
+  ACTIVE.filter(r=>{
+    const d=daysUntil(r.ini);
+    if(d<0||d>per)return false;
+    if(s&&!r.pax.toLowerCase().includes(s))return false;
+    return true;
+  }).sort((a,b)=>a.ini.localeCompare(b.ini)).forEach(r=>{
+    const k=`${r.v}|${normPax(r.pax)}`;
+    if(!seen.has(k)){seen.add(k);items.push(r);}
+  });
+
+  document.getElementById('checklist-cards').innerHTML=items.map(r=>{
+    const p=priority(r.ini),d=daysUntil(r.ini);
+    const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+    const chk=getChk(key);
+    const done=checks_def.filter(c=>chk[c.f]).length;
+    return`<div class="client-row pri-${p}" style="margin-bottom:10px">
+      <div class="cr-head" style="margin-bottom:10px">
+        <div><div class="cr-name">${r.pax.trim()}</div><div class="cr-meta">${destLabel(r)} · Embarque: <strong>${fmtD(r.ini)}</strong> · ${r.emp}</div></div>
+        <div style="text-align:right">
+          <span style="font-size:12px;font-weight:700;color:${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)'}">${priLabel(p)}</span>
+          <div style="font-size:10px;color:var(--texto-leve)">${done}/${checks_def.length} tarefas</div>
+        </div>
+      </div>
+      <div class="progress-wrap" style="margin-bottom:12px"><div class="progress-fill" style="width:${done/checks_def.length*100}%;background:${done===checks_def.length?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)'}"></div></div>
+      ${checks_def.map(c=>{
+        const isUrg=(c.rule==='48h'&&d<=2)||(c.rule==='72h'&&d<=3);
+        return`<div class="check-row">
+          <div class="check-box-emb ${chk[c.f]?'checked':''}" onclick="toggleChkView('${key}','${c.f}',this)"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="font-size:13px;font-weight:600">${c.icon} ${c.label}</span>
+              <span class="pill ${c.rule==='48h'?'pill-red':c.rule==='72h'?'pill-orange':'pill-yellow'}" style="font-size:9px">${c.rule}</span>
+              ${isUrg&&!chk[c.f]?'<span class="pill pill-red" style="font-size:9px">⚠️ URGENTE</span>':''}
+            </div>
+            <div style="font-size:11px;color:var(--texto-leve);margin-top:2px">${c.desc}</div>
+          </div>
+        </div>`;
+      }).join('')}
+      ${r.tel||r.cel?`<div style="margin-top:10px"><a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:12px;text-decoration:none">📱 WhatsApp: ${r.cel||r.tel}</a></div>`:''}
+    </div>`;
+  }).join('')||'<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Nenhum cliente neste período</div></div>';
+}
+
+function toggleChkView(key,field,el){
+  const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);
+  el.classList.toggle('checked',!!chk[field]);
+  renderChecklist();
+}
+
+function renderInternacionais(){
+  const intl=ACTIVE.filter(r=>r.dest==='Internacional'&&daysUntil(r.ini)>=0).sort((a,b)=>a.ini.localeCompare(b.ini));
+  document.getElementById('intl-count').textContent=`${intl.length} passageiros futuros`;
+  renderBarChart('bar-intl-dest',STATS_REAL.top_intl,'#7c3aed');
+  document.getElementById('intl-tbody').innerHTML=intl.map(r=>{
+    const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+    const chk=getChk(key);
+    return`<tr onclick="abrirModalEmb(${JSON.stringify(r).replace(/"/g,'&quot;')})" style="cursor:pointer">
+      <td class="col-protocolo">${fmtD(r.ini)}</td>
+      <td style="font-weight:600">${r.pax.trim()}</td>
+      <td><span class="pill pill-purple">${r.pkg||'Internacional'}</span></td>
+      <td style="font-size:11.5px;color:var(--texto-leve)">${r.forn}</td>
+      <td><span class="pill pill-gray">${r.emp}</span></td>
+      <td style="font-family:'Syne',sans-serif;font-size:11.5px;color:var(--teal)">${r.doc||'–'}</td>
+      <td><span class="badge ${chk.passaporte?'badge-resolvido':'badge-aberto'}" onclick="event.stopPropagation();toggleIntlChk('${key}','passaporte',this)" style="cursor:pointer">${chk.passaporte?'✅ OK':'⬜ Pendente'}</span></td>
+      <td><span class="badge ${chk.seguro?'badge-resolvido':'badge-em_andamento'}" onclick="event.stopPropagation();toggleIntlChk('${key}','seguro',this)" style="cursor:pointer">${chk.seguro?'✅ OK':'⬜ Pendente'}</span></td>
+      <td><span class="badge ${chk.voucher?'badge-resolvido':'badge-aguardando_fornecedor'}" onclick="event.stopPropagation();toggleIntlChk('${key}','voucher',this)" style="cursor:pointer">${chk.voucher?'✅ OK':'⬜ Pendente'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleIntlChk(key,field,el){
+  const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);renderInternacionais();
+}
+
+function renderUpsell(){
+  const prox30=ACTIVE.filter(r=>daysUntil(r.ini)>=0&&daysUntil(r.ini)<=30);
+  const semSeguro=prox30.filter(r=>{const k=`${r.v}_${normPax(r.pax).slice(0,10)}`;return!getChk(k).seguro&&!temSeguroForn(r.pax);});
+  const comEstac=prox30.filter(r=>temEstac(r.pax));
+  const semEstac=prox30.filter(r=>{
+    const k=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+    return !temEstac(r.pax)&&!getChk(k).estac&&r.forn&&(r.forn.includes('Azul')||r.forn.includes('Gol')||r.forn.includes('Lan')||r.forn.includes('Copa')||r.forn.includes('Sky'));
+  });
+  document.getElementById('ups-kpis').innerHTML=[
+    {cls:'laranja',icon:'🛡️',val:semSeguro.length,label:'Sem Seguro (oportunidade)'},
+    {cls:'azul',icon:'🅿️',val:semEstac.length,label:'Sem Estac. (oportunidade)'},
+    {cls:'verde',icon:'✅',val:comEstac.length,label:'Estac. já vendido (Space Park)'},
+    {cls:'roxo',icon:'💰',val:'R$ '+((semSeguro.length*180)+(semEstac.length*45)).toLocaleString('pt-BR'),label:'Potencial UPSell'},
+  ].map(k=>`<div class="kpi-card ${k.cls}"><div style="font-size:20px">${k.icon}</div><div class="kpi-valor" style="font-size:${typeof k.val==='string'&&k.val.length>6?'18':'26'}px">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join('');
+
+  document.getElementById('ups-seguro-tbody').innerHTML=semSeguro.slice(0,30).map(r=>{
+    const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+    return`<tr><td style="font-size:12px">${fmtD(r.ini)}</td><td style="font-weight:600;font-size:12px">${r.pax.trim()}</td><td><span class="pill ${r.dest==='Internacional'?'pill-purple':'pill-blue'}">${r.pkg||r.dest||'–'}</span></td><td style="font-size:11px;color:var(--texto-leve)">${(r.vend||'–').split(' ').slice(0,2).join(' ')}</td><td>${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:11px;text-decoration:none">📱</a> <button class="btn-ver" onclick="marcarUps('${key}','seguro',this)">✓ Feito</button>`:'<span style="color:var(--borda);font-size:11px">Sem tel.</span>'}</td></tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--sucesso);padding:20px">✅ Todos os clientes têm seguro!</td></tr>';
+
+  document.getElementById('ups-estac-tbody').innerHTML=[
+    ...comEstac.slice(0,8).map(r=>`<tr style="background:#f0fdf4"><td style="font-size:12px">${fmtD(r.ini)}</td><td style="font-weight:600;font-size:12px">${r.pax.trim()}</td><td><span class="pill pill-green">✅ Já vendido</span></td><td style="font-size:11px;color:var(--texto-leve)">${(r.vend||'–').split(' ').slice(0,2).join(' ')}</td><td><span class="pill pill-teal" style="font-size:9.5px">🅿️ Space Park</span></td></tr>`),
+    ...semEstac.slice(0,20).map(r=>{
+      const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+      return`<tr><td style="font-size:12px">${fmtD(r.ini)}</td><td style="font-weight:600;font-size:12px">${r.pax.trim()}</td><td><span class="pill pill-orange">💡 Oportunidade</span></td><td style="font-size:11px;color:var(--texto-leve)">${(r.vend||'–').split(' ').slice(0,2).join(' ')}</td><td>${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:11px;text-decoration:none">📱</a> <button class="btn-ver" onclick="marcarUps('${key}','estac',this)">✓ Feito</button>`:'<span style="color:var(--borda);font-size:11px">Sem tel.</span>'}</td></tr>`;
+    })
+  ].join('')||'<tr><td colspan="5" style="text-align:center;color:var(--sucesso);padding:20px">✅ Todos os clientes têm estacionamento!</td></tr>';
+}
+
+function marcarUps(key,field,btn){
+  setChk(key,field,true);btn.textContent='✅';btn.disabled=true;mostrarToast('UPSell registrado!');
+  setTimeout(()=>renderUpsell(),600);
+}
+
+// Modal embarque
+function abrirModalEmb(r){
+  const d=daysUntil(r.ini),p=priority(r.ini);
+  const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
+  const chk=getChk(key);
+  const checks=[
+    {f:'poltrona',icon:'💺',label:'Marcação de Poltrona',rule:'48h',desc:'Confirmar assentos com cia aérea'},
+    {f:'horario',icon:'⏱️',label:'Horário/Voo',rule:'48h',desc:'Verificar alterações de horário'},
+    {f:'cartinha',icon:'✉️',label:'Cartinha ao Hotel',rule:'72h',desc:'Enviar apresentação ao hotel'},
+    {f:'voucher',icon:'📄',label:'Envio de Voucher',rule:'72h',desc:'Voucher enviado ao cliente'},
+    {f:'upsell',icon:'💰',label:'UPSell',rule:'7d',desc:'Seguro + Estacionamento Confins'},
+    ...(r.dest==='Internacional'?[
+      {f:'passaporte',icon:'🛂',label:'Passaporte Verificado',rule:'intl',desc:'Válido mín. 6 meses após retorno'},
+      {f:'seguro',icon:'🏥',label:'Seguro Internacional',rule:'intl',desc:'Cobertura mínima exigida'},
+      {f:'visto',icon:'📋',label:'Visto OK',rule:'intl',desc:'Visto para o destino verificado'},
+    ]:[])
+  ];
+  document.getElementById('modalEmbContent').innerHTML=`
+    <div class="modal-header">
+      <div><div class="modal-title">${r.pax.trim()}</div><div style="font-size:11.5px;color:var(--texto-leve);margin-top:2px">Venda #${r.v} · ${r.emp} · ${r.vend||'–'}</div></div>
+      <button class="modal-close" onclick="document.getElementById('modalEmbOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Destino</div><div class="detail-value">${r.pkg||r.dest||'–'} <span class="pill ${r.dest==='Internacional'?'pill-purple':'pill-blue'}" style="font-size:10px">${r.dest||'Nacional'}</span></div></div>
+        <div class="detail-item"><div class="detail-label">Datas</div><div class="detail-value">${fmtD(r.ini)} → ${fmtD(r.fim)}</div></div>
+        <div class="detail-item"><div class="detail-label">Fornecedor</div><div class="detail-value">${r.forn}</div></div>
+        <div class="detail-item"><div class="detail-label">Localizador</div><div class="detail-value" style="font-family:'Syne',sans-serif;font-weight:700;color:var(--teal)">${r.doc||'–'}</div></div>
+        <div class="detail-item"><div class="detail-label">Embarque</div><div class="detail-value" style="color:${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto)'};font-weight:700">${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'} · ${priLabel(p)}</div></div>
+        <div class="detail-item"><div class="detail-label">Contato</div><div class="detail-value">
+          ${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;padding:6px 12px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">📱 WhatsApp</a>`:'Sem telefone'}
+        </div></div>
+      </div>
+      ${temEstac(r.pax)?'<div class="emb-alert green" style="margin-bottom:12px"><span>🅿️</span><div><div class="emb-alert-title">Estacionamento já vendido via Space Park</div></div></div>':''}
+      <div class="section-sep">✅ Checklist Pós-Vendas</div>
+      ${checks.map(c=>{
+        const isUrg=(c.rule==='48h'&&d<=2)||(c.rule==='72h'&&d<=3);
+        return`<div class="check-row" id="mec-${c.f}">
+          <div class="check-box-emb ${chk[c.f]?'checked':''}" onclick="toggleMEC('${key}','${c.f}')"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="font-weight:600">${c.icon} ${c.label}</span>
+              <span class="pill ${c.rule==='48h'?'pill-red':c.rule==='72h'?'pill-orange':c.rule==='intl'?'pill-purple':'pill-yellow'}" style="font-size:9px">${c.rule}</span>
+              ${isUrg&&!chk[c.f]?'<span class="pill pill-red" style="font-size:9px;animation:blink 1s infinite">⚠️ URGENTE</span>':''}
+            </div>
+            <div style="font-size:11px;color:var(--texto-leve)">${c.desc}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  document.getElementById('modalEmbOverlay').classList.add('open');
+}
+
+function toggleMEC(key,field){
+  const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);
+  const box=document.querySelector(`#mec-${field} .check-box-emb`);
+  if(box)box.classList.toggle('checked',!!chk[field]);
+}
+
+// ── DEMO DATA ──
+function initDemoData(){
+  if(getDados().length>0)return;
+  salvarDados([
+    {protocolo:'CVM2024-11042',status:'aberto',tipo_solicitacao:'troca_passageiro',urgencia:'alta',nome_contratante:'Maria Silva',cpf_contratante:'123.456.789-00',data_nascimento:'1985-03-15',whatsapp:'(31) 99999-1234',email:'maria@email.com',localizador:'ABC123',data_embarque:'2026-04-10',destino:'Cancún',descricao:'Preciso trocar o passageiro José Silva pelo Antônio Ferreira.',consultor:'Gabriel',viajantes:[{nome:'Maria Silva'},{nome:'José Silva'}],nome_atual:'José Silva',nome_novo:'Antônio Ferreira',created_at:new Date(Date.now()-3600000).toISOString(),prazo_resposta:new Date(Date.now()+72000000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-3600000).toISOString()}])},
+    {protocolo:'CVM2024-22891',status:'em_andamento',tipo_solicitacao:'cancelamento_reembolso',urgencia:'alta',nome_contratante:'João Oliveira',cpf_contratante:'987.654.321-00',data_nascimento:'1978-07-20',whatsapp:'(31) 98888-5678',email:'joao@email.com',localizador:'XYZ789',data_embarque:'2026-04-05',destino:'Lisboa',descricao:'Preciso cancelar o pacote. Fui diagnosticado com problema de saúde.',consultor:'Fernanda',viajantes:[{nome:'João Oliveira'},{nome:'Ana Oliveira'}],created_at:new Date(Date.now()-86400000).toISOString(),prazo_resposta:new Date(Date.now()-3600000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-86400000).toISOString()},{acao:'Iniciamos análise. Verificando localizador XYZ789 na Azul.',usuario:'Ana Beatriz',data:new Date(Date.now()-72000000).toISOString()}])},
+    {protocolo:'CVM2024-33210',status:'aguardando_fornecedor',tipo_solicitacao:'alteracao_voo',urgencia:'media',nome_contratante:'Carla Mendes',cpf_contratante:'456.789.123-00',data_nascimento:'1990-11-05',whatsapp:'(31) 97777-9012',email:'carla@email.com',localizador:'DEF456',data_embarque:'2026-04-20',destino:'Gramado',descricao:'A Azul alterou meu voo direto para voo com conexão. Não aceito.',consultor:'Rafaela',viajantes:[{nome:'Carla Mendes'}],created_at:new Date(Date.now()-172800000).toISOString(),prazo_resposta:new Date(Date.now()+86400000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-172800000).toISOString()},{acao:'Protocolo Azul nº AZ-987654 aberto. Aguardando retorno em 48h.',usuario:'Ana Beatriz',data:new Date(Date.now()-100000000).toISOString()}])},
+    {protocolo:'CVM2024-44567',status:'resolvido',tipo_solicitacao:'segunda_via',urgencia:'baixa',nome_contratante:'Pedro Costa',cpf_contratante:'321.654.987-00',data_nascimento:'1995-02-28',whatsapp:'(31) 96666-3456',email:'pedro@email.com',localizador:'GHI101',data_embarque:'2026-05-15',destino:'Buenos Aires',descricao:'Não recebi o boleto por email. Preciso de segunda via.',consultor:'Caio',viajantes:[{nome:'Pedro Costa'}],created_at:new Date(Date.now()-259200000).toISOString(),prazo_resposta:new Date(Date.now()+259200000).toISOString(),historico:JSON.stringify([{acao:'Solicitação aberta pelo cliente',usuario:'cliente',data:new Date(Date.now()-259200000).toISOString()},{acao:'Boleto reenviado para pedro@email.com',usuario:'Eduarda',data:new Date(Date.now()-250000000).toISOString()}])},
+  ]);
+}
+
+verificarExpedientePainel();
+setInterval(verificarExpedientePainel,60000);
+</script>
+</body>
+</html>
