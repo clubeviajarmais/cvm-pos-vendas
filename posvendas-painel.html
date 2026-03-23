@@ -729,7 +729,7 @@ tr:hover td { background: #fafbfc; }
 const todayDate = new Date(); todayDate.setHours(0,0,0,0);
 const TODAY = todayDate.toISOString().slice(0,10);
 
-function normPax(n){ return (n||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function normPax(n){ return (n||'').trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
 
 const RAW_EMB = [
   {v:9556,forn:'Space Park Confins',ini:'2026-03-23',fim:'2026-03-30',pax:'DENILSON MARQUES DA SILVA',tel:'31983374499',cel:'31983374499',vend:'Ana Beatriz Nogueira Pereira',emp:'BOA VISTA',doc:'TYL2G94 e HEM-9425',pkg:null,dest:null,canc:null},
@@ -1215,31 +1215,45 @@ function renderBarChart(id,data,color){
 let embCliPage=1;
 const EMB_PAGE_SIZE=8;
 
+// ── Telefone editável salvo no localStorage ──
+function getTel(key){ try{ return JSON.parse(localStorage.getItem('tel_'+key)||'null'); }catch{return null;} }
+function saveTel(key,val){ localStorage.setItem('tel_'+key, JSON.stringify(val)); }
+
+// ── Agrupar ACTIVE por Venda Nº ──
+function groupByVenda(lista){
+  const map = new Map();
+  lista.forEach(r => {
+    if(!map.has(r.v)) map.set(r.v, []);
+    map.get(r.v).push(r);
+  });
+  return Array.from(map.entries()).map(([v, paxList]) => {
+    const lider = paxList.find(r => r.tel||r.cel) || paxList[0];
+    return { v, lider, paxList, ini: lider.ini, fim: lider.fim };
+  }).sort((a,b) => a.ini.localeCompare(b.ini));
+}
+
 function filterEmbClientes(){
   const s=(document.getElementById('emb-search')?.value||'').toLowerCase();
   const emp=document.getElementById('emb-emp')?.value||'';
   const per=parseInt(document.getElementById('emb-per')?.value||0);
   const dest=document.getElementById('emb-dest')?.value||'';
-  const seen=new Set(),out=[];
-  ACTIVE.filter(r=>{
+  return ACTIVE.filter(r=>{
     const d=daysUntil(r.ini);
     if(d<0)return false;
-    if(s&&!r.pax.toLowerCase().includes(s)&&!(r.pkg||'').toLowerCase().includes(s))return false;
+    if(s&&!r.pax.toLowerCase().includes(s)&&!(r.pkg||'').toLowerCase().includes(s)&&!String(r.v).includes(s))return false;
     if(emp&&!r.emp.includes(emp))return false;
     if(per&&d>per)return false;
     if(dest&&r.dest!==dest)return false;
     return true;
-  }).sort((a,b)=>a.ini.localeCompare(b.ini)).forEach(r=>{
-    const k=`${r.v}|${normPax(r.pax)}`;
-    if(!seen.has(k)){seen.add(k);out.push(r);}
   });
-  return out;
 }
 
 function renderEmbClientes(){
-  const filtered=filterEmbClientes();
-  const total=filtered.length,pages=Math.ceil(total/EMB_PAGE_SIZE);
-  const slice=filtered.slice((embCliPage-1)*EMB_PAGE_SIZE,embCliPage*EMB_PAGE_SIZE);
+  const filtered = filterEmbClientes();
+  const grupos = groupByVenda(filtered);
+  const total = grupos.length;
+  const pages = Math.ceil(total/EMB_PAGE_SIZE);
+  const slice = grupos.slice((embCliPage-1)*EMB_PAGE_SIZE, embCliPage*EMB_PAGE_SIZE);
   const checks_def=[
     {f:'poltrona',icon:'💺',label:'Poltrona'},
     {f:'horario',icon:'⏱️',label:'Horário'},
@@ -1247,49 +1261,103 @@ function renderEmbClientes(){
     {f:'voucher',icon:'📄',label:'Voucher'},
     {f:'upsell',icon:'💰',label:'UPSell'},
   ];
-  document.getElementById('emb-cli-cards').innerHTML=slice.map(r=>{
-    const p=priority(r.ini),d=daysUntil(r.ini);
-    const key=`${r.v}_${normPax(r.pax).slice(0,10)}`;
-    const chk=getChk(key);
-    const done=checks_def.filter(c=>chk[c.f]).length;
-    return`<div class="client-row pri-${p}" onclick="abrirModalEmb(${JSON.stringify(r).replace(/"/g,'&quot;')})">
-      <div class="cr-head">
-        <div><div class="cr-name">${r.pax.trim()}</div><div class="cr-meta">${destLabel(r)} · ${fmtD(r.ini)} → ${fmtD(r.fim)} · ${r.emp}</div></div>
-        <div style="text-align:right">
-          <span style="font-size:11.5px;font-weight:700;color:${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)'}">${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'}</span>
-          <div style="font-size:10.5px;color:var(--texto-leve);margin-top:2px">${priLabel(p)}</div>
-          <div style="margin-top:5px"><div class="progress-wrap" style="width:70px"><div class="progress-fill" style="width:${done/5*100}%;background:${done===5?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)'}"></div></div></div>
-          <div style="font-size:9.5px;color:var(--texto-leve)">${done}/5</div>
+  document.getElementById('emb-cli-cards').innerHTML = slice.map(grupo => {
+    const { v, lider, paxList } = grupo;
+    const p = priority(lider.ini);
+    const d = daysUntil(lider.ini);
+    const vendaKey = \`v\${v}\`;
+    const chk = getChk(\`\${v}_\${normPax(lider.pax).slice(0,10)}\`);
+    const done = checks_def.filter(c=>chk[c.f]).length;
+    const telSalvo = getTel(vendaKey);
+    const telExibir = telSalvo || lider.cel || lider.tel || '';
+    const totalPax = paxList.length;
+    const isIntl = lider.dest === 'Internacional';
+    const paxBadge = totalPax > 1
+      ? \`<span class="pill pill-blue" style="font-size:10px">👪 \${totalPax} passageiros</span>\`
+      : \`<span class="pill pill-gray" style="font-size:10px">👤 Individual</span>\`;
+    const paxListHtml = paxList.map((r,i) => {
+      const pTel = getTel(\`v\${v}_p\${i}\`) || r.cel || r.tel || '';
+      const waBtnHtml = pTel ? \`<a href="https://wa.me/55\${pTel.replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:11px;font-weight:700;padding:4px 8px;background:#d1fae5;border-radius:6px;text-decoration:none;white-space:nowrap">📱</a>\` : '';
+      return \`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--cinza-bg)">
+        <span style="font-size:13px">👤</span>
+        <span style="font-size:12.5px;font-weight:600;color:var(--azul);flex:1">\${r.pax.trim()}</span>
+        <div style="display:flex;align-items:center;gap:5px" onclick="event.stopPropagation()">
+          <input type="text" placeholder="(31) 9xxxx-xxxx" value="\${pTel}"
+            id="tel-pax-\${v}-\${i}"
+            style="width:130px;padding:4px 8px;border:1.5px solid var(--borda);border-radius:6px;font-size:11.5px;font-family:'DM Sans',sans-serif;outline:none"
+            onfocus="this.style.borderColor='var(--azul-medio)'"
+            onblur="this.style.borderColor='var(--borda)';salvarTelPax(\${v},\${i},this.value)" />
+          \${waBtnHtml}
+        </div>
+      </div>\`;
+    }).join('');
+    const telWaBtn = telExibir ? \`<a href="https://wa.me/55\${telExibir.replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:12px;font-weight:700;padding:5px 12px;background:#d1fae5;border-radius:7px;text-decoration:none">📱 WhatsApp</a>\` : '';
+    const liderJson = JSON.stringify(lider).replace(/"/g,'&quot;');
+    return \`<div class="client-row pri-\${p}" style="cursor:default">
+      <div class="cr-head" style="cursor:pointer" onclick="toggleGrupo(\${v})">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div class="cr-name">Venda #\${v} — \${destLabel(lider)}</div>
+            \${paxBadge}
+            \${isIntl ? '<span class="pill pill-purple" style="font-size:10px">🌍 Internacional</span>' : ''}
+            \${temEstac(lider.pax) ? '<span class="pill pill-teal" style="font-size:10px">🅿️ Estac.</span>' : ''}
+          </div>
+          <div class="cr-meta" style="margin-top:4px">\${fmtD(lider.ini)} → \${fmtD(lider.fim)} · \${lider.forn} · \${lider.emp}</div>
+          <div class="cr-meta" style="margin-top:2px">Vendedor: \${lider.vend||'–'} · Doc: <span style="font-family:'Syne',sans-serif;color:var(--teal)">\${lider.doc||'–'}</span></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          <span style="font-size:11.5px;font-weight:700;color:\${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)'}">\${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'}</span>
+          <div style="font-size:10.5px;color:var(--texto-leve);margin-top:2px">\${priLabel(p)}</div>
+          <div style="margin-top:5px"><div class="progress-wrap" style="width:70px"><div class="progress-fill" style="width:\${done/5*100}%;background:\${done===5?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)'}"></div></div></div>
+          <div style="font-size:9.5px;color:var(--texto-leve)">\${done}/5 · clique para \${totalPax>1?'ver grupo':'detalhes'}</div>
         </div>
       </div>
-      <div class="cr-checks" onclick="event.stopPropagation()">
-        ${checks_def.map(c=>`<div class="cr-check ${chk[c.f]?'done':'pend'} ${p==='urgent'&&!chk[c.f]?'alert':''}" onclick="toggleCR('${key}','${c.f}',this)">${chk[c.f]?'✅':'⬜'} ${c.icon} ${c.label}</div>`).join('')}
-        ${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" onclick="event.stopPropagation()" style="color:var(--sucesso);font-size:10.5px;font-weight:600;padding:3px 8px;background:#d1fae5;border-radius:6px;text-decoration:none">📱 WhatsApp</a>`:''}
-        ${r.dest==='Internacional'?`<span class="pill pill-purple" style="font-size:10px">🌍 Internacional</span>`:''}
-        ${temEstac(r.pax)?`<span class="pill pill-teal" style="font-size:10px">🅿️ Estac. OK</span>`:''}
+      <div class="cr-checks" onclick="event.stopPropagation()" style="margin-top:8px">
+        \${checks_def.map(c=>\`<div class="cr-check \${chk[c.f]?'done':'pend'} \${p==='urgent'&&!chk[c.f]?'alert':''}" onclick="toggleCRGrupo(\${v},'\${c.f}',this)">\${chk[c.f]?'✅':'⬜'} \${c.icon} \${c.label}</div>\`).join('')}
       </div>
-    </div>`;
-  }).join('') || '<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-title">Nenhum cliente encontrado</div></div>';
-
-  document.getElementById('emb-cli-info').textContent=`${total} clientes encontrados`;
-  const pg=document.getElementById('emb-cli-pag');
-  let btns='';
+      <div id="grupo-\${v}" style="display:none;margin-top:12px;border-top:1px solid var(--borda);padding-top:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">👪 Passageiros desta venda</div>
+        \${paxListHtml}
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">
+          <span style="font-size:11px;font-weight:600;color:var(--texto-leve)">📞 Tel. principal da venda:</span>
+          <input type="text" placeholder="(31) 9xxxx-xxxx" value="\${telExibir}" id="tel-venda-\${v}"
+            style="width:150px;padding:5px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none"
+            onfocus="this.style.borderColor='var(--azul-medio)'"
+            onblur="this.style.borderColor='var(--borda)';salvarTelVenda(\${v},this.value)" />
+          \${telWaBtn}
+          <button class="btn-ver" onclick="abrirModalEmb(\${liderJson})">Ver detalhes →</button>
+        </div>
+      </div>
+    </div>\`;
+  }).join('') || '<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-title">Nenhuma venda encontrada</div></div>';
+  document.getElementById('emb-cli-info').textContent = \`\${total} venda\${total!==1?'s':''} · \${filtered.length} passageiro\${filtered.length!==1?'s':''}\`;
+  const pg = document.getElementById('emb-cli-pag');
+  let btns = '';
   if(pages>1){
-    btns+=`<button class="page-btn" onclick="goEmbCliPage(${Math.max(1,embCliPage-1)})">‹</button>`;
+    btns+=\`<button class="page-btn" onclick="goEmbCliPage(\${Math.max(1,embCliPage-1)})">‹</button>\`;
     for(let i=Math.max(1,embCliPage-2);i<=Math.min(pages,embCliPage+2);i++)
-      btns+=`<button class="page-btn ${i===embCliPage?'active':''}" onclick="goEmbCliPage(${i})">${i}</button>`;
-    btns+=`<button class="page-btn" onclick="goEmbCliPage(${Math.min(pages,embCliPage+1)})">›</button>`;
+      btns+=\`<button class="page-btn \${i===embCliPage?'active':''}" onclick="goEmbCliPage(\${i})">\${i}</button>\`;
+    btns+=\`<button class="page-btn" onclick="goEmbCliPage(\${Math.min(pages,embCliPage+1)})">›</button>\`;
   }
-  pg.innerHTML=btns;
+  pg.innerHTML = btns;
 }
-function goEmbCliPage(p){embCliPage=p;renderEmbClientes();}
-
-function toggleCR(key,field,el){
+function toggleGrupo(v){ const el=document.getElementById('grupo-'+v); if(el)el.style.display=el.style.display==='none'?'block':'none'; }
+function salvarTelVenda(v,val){ saveTel('v'+v,val); }
+function salvarTelPax(v,i,val){ saveTel('v'+v+'_p'+i,val); }
+function toggleCRGrupo(v,field,el){
+  const grupo=groupByVenda(ACTIVE).find(g=>g.v===v);
+  if(!grupo)return;
+  const key=v+'_'+normPax(grupo.lider.pax).slice(0,10);
   const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);
-  el.className=`cr-check ${chk[field]?'done':'pend'}`;
+  el.className='cr-check '+(chk[field]?'done':'pend');
   el.innerHTML=(chk[field]?'✅':'⬜')+' '+el.innerHTML.slice(2);
 }
-
+function goEmbCliPage(p){embCliPage=p;renderEmbClientes();}
+function toggleCR(key,field,el){
+  const chk=getChk(key);chk[field]=!chk[field];setChk(key,field,chk[field]);
+  el.className='cr-check '+(chk[field]?'done':'pend');
+  el.innerHTML=(chk[field]?'✅':'⬜')+' '+el.innerHTML.slice(2);
+}
 // Checklist detalhado
 function renderChecklist(){
   const s=(document.getElementById('chk-search')?.value||'').toLowerCase();
@@ -1440,7 +1508,19 @@ function abrirModalEmb(r){
         <div class="detail-item"><div class="detail-label">Localizador</div><div class="detail-value" style="font-family:'Syne',sans-serif;font-weight:700;color:var(--teal)">${r.doc||'–'}</div></div>
         <div class="detail-item"><div class="detail-label">Embarque</div><div class="detail-value" style="color:${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto)'};font-weight:700">${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'} · ${priLabel(p)}</div></div>
         <div class="detail-item"><div class="detail-label">Contato</div><div class="detail-value">
-          ${r.tel||r.cel?`<a href="https://wa.me/55${(r.cel||r.tel).replace(/\D/g,'')}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;padding:6px 12px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">📱 WhatsApp</a>`:'Sem telefone'}
+          ${(()=>{ const telSalvo=getTel('v'+r.v)||r.cel||r.tel||''; return `
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <input type="text" id="modal-tel-${r.v}" placeholder="(31) 9xxxx-xxxx" value="${telSalvo}"
+                  style="width:160px;padding:7px 10px;border:1.5px solid var(--borda);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none"
+                  onfocus="this.style.borderColor='var(--azul-medio)'"
+                  onblur="this.style.borderColor='var(--borda)';saveTel('v${r.v}',this.value)" />
+                ${telSalvo?`<a href="https://wa.me/55${telSalvo.replace(/\D/g,'')}" target="_blank"
+                  style="display:inline-flex;align-items:center;gap:6px;background:#22c55e;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">📱 WhatsApp</a>`:'<span style="font-size:11.5px;color:var(--texto-leve)">Digite o telefone ao lado</span>'}
+              </div>
+              <div style="font-size:10.5px;color:var(--texto-leve)">✏️ Clique no campo para editar o telefone</div>
+            </div>
+          `; })()}
         </div></div>
       </div>
       ${temEstac(r.pax)?'<div class="emb-alert green" style="margin-bottom:12px"><span>🅿️</span><div><div class="emb-alert-title">Estacionamento já vendido via Space Park</div></div></div>':''}
