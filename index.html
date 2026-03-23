@@ -64,6 +64,7 @@ h1 { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 footer { margin-top: 32px; color: rgba(255,255,255,0.3); font-size: 12px; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
@@ -152,19 +153,29 @@ const STATUS_MSG = {
   cancelado: 'Esta solicitação foi encerrada. Caso precise de ajuda, abra uma nova solicitação.',
 };
 
-function buscarProtocolo() {
+const _sbPortal = window.supabase.createClient(
+  'https://chbrdzzpypvwfpqonfqs.supabase.co',
+  'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij'
+);
+
+async function buscarProtocolo() {
   const proto = document.getElementById('proto-input').value.trim().toUpperCase();
   const res = document.getElementById('resultado');
   if (!proto) { res.innerHTML = '<div class="res-erro">Digite um número de protocolo.</div>'; return; }
-  const dados = JSON.parse(localStorage.getItem('cvm_solicitacoes') || '[]');
-  const caso = dados.find(d => d.protocolo.toUpperCase() === proto);
-  if (!caso) {
+  
+  res.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px">🔍 Consultando...</div>';
+  
+  const { data, error } = await _sbPortal.from('solicitacoes').select('*').eq('protocolo', proto).single();
+  
+  if (error || !data) {
     res.innerHTML = '<div class="res-erro">Protocolo <strong>' + proto + '</strong> não encontrado.<br><span style="font-size:12px">Verifique se digitou corretamente ou entre em contato pelo WhatsApp.</span></div>';
     return;
   }
+  
+  const caso = data;
   const emb = caso.data_embarque ? new Date(caso.data_embarque+'T12:00:00').toLocaleDateString('pt-BR') : '—';
   const criado = new Date(caso.created_at).toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const hist = JSON.parse(caso.historico || '[]');
+  const hist = Array.isArray(caso.historico) ? caso.historico : JSON.parse(caso.historico || '[]');
   const tlHTML = hist.map(h => {
     const t = h.usuario === 'cliente' ? 'cliente' : h.usuario === 'fornecedor' ? 'fornecedor' : '';
     const n = h.usuario === 'cliente' ? 'Você' : h.usuario === 'fornecedor' ? 'Fornecedor' : 'Equipe CVM';
