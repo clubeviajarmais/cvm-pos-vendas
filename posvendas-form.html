@@ -994,12 +994,19 @@ function verificarExpediente() {
 }
 
 // ─── SUPABASE CONFIG ───────────────────────────────────────────
-const SUPABASE_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
-let _sbForm;
+const CVM_SUPA_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
+const CVM_SUPA_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
+let _cvmSbClient = null;
 function getSB() {
-  if (!_sbForm) _sbForm = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  return _sbForm;
+  if (!_cvmSbClient) {
+    try {
+      const lib = window.supabase || (typeof supabaseJs !== 'undefined' ? supabaseJs : null);
+      if (lib && lib.createClient) {
+        _cvmSbClient = lib.createClient(CVM_SUPA_URL, CVM_SUPA_KEY);
+      }
+    } catch(e) { console.warn('Supabase init:', e); }
+  }
+  return _cvmSbClient;
 }
 
 // ─── VIAJANTES ─────────────────────────────────────────────────
