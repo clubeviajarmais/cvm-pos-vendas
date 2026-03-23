@@ -805,8 +805,9 @@ select.filter-sel {
 // ═══════════════════════════════════════════════
 // DATA – extraída da planilha EMBARQUES_FUTUROS.xlsx (2.946 registros reais)
 // ═══════════════════════════════════════════════
-const TODAY = '2026-03-22';
-const todayDate = new Date(TODAY + 'T00:00:00');
+const todayDate = new Date();
+todayDate.setHours(0,0,0,0);
+const TODAY = todayDate.toISOString().slice(0,10);
 
 const RAW = [
   // ── Semana 13 (23–29/03) – 220 passageiros reais (amostra dos primeiros registros) ──
