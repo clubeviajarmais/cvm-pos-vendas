@@ -738,9 +738,18 @@ function logout(){
   document.getElementById('loginPass').value='';
 }
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
-const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const CVM_SB_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
+const CVM_SB_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
+let _sb = null;
+function initSB() {
+  if (!_sb) {
+    try {
+      const lib = window.supabase || (typeof supabaseJs !== 'undefined' ? supabaseJs : null);
+      if (lib && lib.createClient) _sb = lib.createClient(CVM_SB_URL, CVM_SB_KEY);
+    } catch(e) { console.warn('Supabase painel init:', e); }
+  }
+  return _sb;
+}
 
 // Cache local para performance
 let _cacheData = null;
@@ -748,7 +757,7 @@ let _cacheTs = 0;
 
 async function getDados(forceRefresh = false) {
   if (!forceRefresh && _cacheData && (Date.now() - _cacheTs < 15000)) return _cacheData;
-  const { data, error } = await _sb.from('solicitacoes').select('*').order('created_at', { ascending: false });
+  const { data, error } = await initSB().from('solicitacoes').select('*').order('created_at', { ascending: false });
   if (error) { console.error('Erro ao buscar dados:', error); return _cacheData || []; }
   // Normalizar campos jsonb
   _cacheData = (data || []).map(d => ({
@@ -771,7 +780,7 @@ async function upsertCaso(caso) {
     viajantes: typeof caso.viajantes === 'string' ? JSON.parse(caso.viajantes || '[]') : (caso.viajantes || []),
     historico: typeof caso.historico === 'string' ? JSON.parse(caso.historico || '[]') : (caso.historico || []),
   };
-  const { error } = await _sb.from('solicitacoes').upsert([payload], { onConflict: 'protocolo' });
+  const { error } = await initSB().from('solicitacoes').upsert([payload], { onConflict: 'protocolo' });
   if (error) { console.error('Erro ao salvar:', error); mostrarToast('Erro ao salvar. Tente novamente.'); return false; }
   _cacheData = null; // invalidar cache
   return true;
