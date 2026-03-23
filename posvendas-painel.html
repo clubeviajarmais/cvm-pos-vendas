@@ -1261,83 +1261,97 @@ function renderEmbClientes(){
     {f:'voucher',icon:'📄',label:'Voucher'},
     {f:'upsell',icon:'💰',label:'UPSell'},
   ];
-  document.getElementById('emb-cli-cards').innerHTML = slice.map(grupo => {
-    const { v, lider, paxList } = grupo;
-    const p = priority(lider.ini);
-    const d = daysUntil(lider.ini);
-    const vendaKey = \`v\${v}\`;
-    const chk = getChk(\`\${v}_\${normPax(lider.pax).slice(0,10)}\`);
-    const done = checks_def.filter(c=>chk[c.f]).length;
-    const telSalvo = getTel(vendaKey);
-    const telExibir = telSalvo || lider.cel || lider.tel || '';
-    const totalPax = paxList.length;
-    const isIntl = lider.dest === 'Internacional';
-    const paxBadge = totalPax > 1
-      ? \`<span class="pill pill-blue" style="font-size:10px">👪 \${totalPax} passageiros</span>\`
-      : \`<span class="pill pill-gray" style="font-size:10px">👤 Individual</span>\`;
-    const paxListHtml = paxList.map((r,i) => {
-      const pTel = getTel(\`v\${v}_p\${i}\`) || r.cel || r.tel || '';
-      const waBtnHtml = pTel ? \`<a href="https://wa.me/55\${pTel.replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:11px;font-weight:700;padding:4px 8px;background:#d1fae5;border-radius:6px;text-decoration:none;white-space:nowrap">📱</a>\` : '';
-      return \`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--cinza-bg)">
-        <span style="font-size:13px">👤</span>
-        <span style="font-size:12.5px;font-weight:600;color:var(--azul);flex:1">\${r.pax.trim()}</span>
-        <div style="display:flex;align-items:center;gap:5px" onclick="event.stopPropagation()">
-          <input type="text" placeholder="(31) 9xxxx-xxxx" value="\${pTel}"
-            id="tel-pax-\${v}-\${i}"
-            style="width:130px;padding:4px 8px;border:1.5px solid var(--borda);border-radius:6px;font-size:11.5px;font-family:'DM Sans',sans-serif;outline:none"
-            onfocus="this.style.borderColor='var(--azul-medio)'"
-            onblur="this.style.borderColor='var(--borda)';salvarTelPax(\${v},\${i},this.value)" />
-          \${waBtnHtml}
-        </div>
-      </div>\`;
+
+  function buildPaxRow(r, v, i) {
+    var pTel = getTel('v'+v+'_p'+i) || r.cel || r.tel || '';
+    var waBtn = pTel ? '<a href="https://wa.me/55'+pTel.replace(/\D/g,'')+'" target="_blank" style="color:var(--sucesso);font-size:11px;font-weight:700;padding:4px 8px;background:#d1fae5;border-radius:6px;text-decoration:none">📱</a>' : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--cinza-bg)">'
+      + '<span style="font-size:13px">👤</span>'
+      + '<span style="font-size:12.5px;font-weight:600;color:var(--azul);flex:1">'+r.pax.trim()+'</span>'
+      + '<div style="display:flex;align-items:center;gap:5px" onclick="event.stopPropagation()">'
+      + '<input type="text" placeholder="(31) 9xxxx-xxxx" value="'+pTel+'" id="tel-pax-'+v+'-'+i+'"'
+      + ' style="width:130px;padding:4px 8px;border:1.5px solid var(--borda);border-radius:6px;font-size:11.5px;font-family:\'DM Sans\',sans-serif;outline:none"'
+      + ' onfocus="this.style.borderColor=\'var(--azul-medio)\'"'
+      + ' onblur="this.style.borderColor=\'var(--borda)\';salvarTelPax('+v+','+i+',this.value)" />'
+      + waBtn
+      + '</div></div>';
+  }
+
+  function buildCard(grupo) {
+    var v = grupo.v, lider = grupo.lider, paxList = grupo.paxList;
+    var p = priority(lider.ini), d = daysUntil(lider.ini);
+    var chk = getChk(v+'_'+normPax(lider.pax).slice(0,10));
+    var done = checks_def.filter(function(c){return chk[c.f];}).length;
+    var telExibir = getTel('v'+v) || lider.cel || lider.tel || '';
+    var totalPax = paxList.length;
+    var isIntl = lider.dest === 'Internacional';
+    var dLabel = d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias';
+    var dColor = d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)';
+    var paxBadge = totalPax > 1
+      ? '<span class="pill pill-blue" style="font-size:10px">👨‍👩‍👧 '+totalPax+' passageiros</span>'
+      : '<span class="pill pill-gray" style="font-size:10px">👤 Individual</span>';
+    var intlBadge = isIntl ? '<span class="pill pill-purple" style="font-size:10px">🌍 Internacional</span>' : '';
+    var estacBadge = temEstac(lider.pax) ? '<span class="pill pill-teal" style="font-size:10px">🅿️ Estac.</span>' : '';
+    var paxListHtml = paxList.map(function(r,i){ return buildPaxRow(r,v,i); }).join('');
+    var waBtn = telExibir ? '<a href="https://wa.me/55'+telExibir.replace(/\D/g,'')+'" target="_blank" style="color:var(--sucesso);font-size:12px;font-weight:700;padding:5px 12px;background:#d1fae5;border-radius:7px;text-decoration:none">📱 WhatsApp</a>' : '';
+    var liderJson = JSON.stringify(lider).replace(/"/g,'&quot;');
+    var progressBg = done===5?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)';
+    var checksHtml = checks_def.map(function(c){
+      var cls = 'cr-check '+(chk[c.f]?'done':'pend')+(p==='urgent'&&!chk[c.f]?' alert':'');
+      var icon = chk[c.f]?'✅':'⬜';
+      return '<div class="'+cls+'" onclick="toggleCRGrupo('+v+',\''+c.f+'\',this)">'+icon+' '+c.icon+' '+c.label+'</div>';
     }).join('');
-    const telWaBtn = telExibir ? \`<a href="https://wa.me/55\${telExibir.replace(/\D/g,'')}" target="_blank" style="color:var(--sucesso);font-size:12px;font-weight:700;padding:5px 12px;background:#d1fae5;border-radius:7px;text-decoration:none">📱 WhatsApp</a>\` : '';
-    const liderJson = JSON.stringify(lider).replace(/"/g,'&quot;');
-    return \`<div class="client-row pri-\${p}" style="cursor:default">
-      <div class="cr-head" style="cursor:pointer" onclick="toggleGrupo(\${v})">
-        <div style="flex:1">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <div class="cr-name">Venda #\${v} — \${destLabel(lider)}</div>
-            \${paxBadge}
-            \${isIntl ? '<span class="pill pill-purple" style="font-size:10px">🌍 Internacional</span>' : ''}
-            \${temEstac(lider.pax) ? '<span class="pill pill-teal" style="font-size:10px">🅿️ Estac.</span>' : ''}
-          </div>
-          <div class="cr-meta" style="margin-top:4px">\${fmtD(lider.ini)} → \${fmtD(lider.fim)} · \${lider.forn} · \${lider.emp}</div>
-          <div class="cr-meta" style="margin-top:2px">Vendedor: \${lider.vend||'–'} · Doc: <span style="font-family:'Syne',sans-serif;color:var(--teal)">\${lider.doc||'–'}</span></div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;margin-left:12px">
-          <span style="font-size:11.5px;font-weight:700;color:\${d<=2?'var(--erro)':d<=7?'var(--laranja)':'var(--texto-leve)'}">\${d===0?'HOJE':d===1?'AMANHÃ':'Em '+d+' dias'}</span>
-          <div style="font-size:10.5px;color:var(--texto-leve);margin-top:2px">\${priLabel(p)}</div>
-          <div style="margin-top:5px"><div class="progress-wrap" style="width:70px"><div class="progress-fill" style="width:\${done/5*100}%;background:\${done===5?'var(--sucesso)':d<=2?'var(--erro)':'var(--azul-medio)'}"></div></div></div>
-          <div style="font-size:9.5px;color:var(--texto-leve)">\${done}/5 · clique para \${totalPax>1?'ver grupo':'detalhes'}</div>
-        </div>
-      </div>
-      <div class="cr-checks" onclick="event.stopPropagation()" style="margin-top:8px">
-        \${checks_def.map(c=>\`<div class="cr-check \${chk[c.f]?'done':'pend'} \${p==='urgent'&&!chk[c.f]?'alert':''}" onclick="toggleCRGrupo(\${v},'\${c.f}',this)">\${chk[c.f]?'✅':'⬜'} \${c.icon} \${c.label}</div>\`).join('')}
-      </div>
-      <div id="grupo-\${v}" style="display:none;margin-top:12px;border-top:1px solid var(--borda);padding-top:12px">
-        <div style="font-size:11px;font-weight:700;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">👪 Passageiros desta venda</div>
-        \${paxListHtml}
-        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">
-          <span style="font-size:11px;font-weight:600;color:var(--texto-leve)">📞 Tel. principal da venda:</span>
-          <input type="text" placeholder="(31) 9xxxx-xxxx" value="\${telExibir}" id="tel-venda-\${v}"
-            style="width:150px;padding:5px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:12.5px;font-family:'DM Sans',sans-serif;outline:none"
-            onfocus="this.style.borderColor='var(--azul-medio)'"
-            onblur="this.style.borderColor='var(--borda)';salvarTelVenda(\${v},this.value)" />
-          \${telWaBtn}
-          <button class="btn-ver" onclick="abrirModalEmb(\${liderJson})">Ver detalhes →</button>
-        </div>
-      </div>
-    </div>\`;
-  }).join('') || '<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-title">Nenhuma venda encontrada</div></div>';
-  document.getElementById('emb-cli-info').textContent = \`\${total} venda\${total!==1?'s':''} · \${filtered.length} passageiro\${filtered.length!==1?'s':''}\`;
-  const pg = document.getElementById('emb-cli-pag');
-  let btns = '';
+
+    return '<div class="client-row pri-'+p+'" style="cursor:default">'
+      // Header
+      + '<div class="cr-head" style="cursor:pointer" onclick="toggleGrupo('+v+')">'
+        + '<div style="flex:1">'
+          + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+            + '<div class="cr-name">Venda #'+v+' — '+destLabel(lider)+'</div>'
+            + paxBadge + intlBadge + estacBadge
+          + '</div>'
+          + '<div class="cr-meta" style="margin-top:4px">'+fmtD(lider.ini)+' → '+fmtD(lider.fim)+' · '+lider.forn+' · '+lider.emp+'</div>'
+          + '<div class="cr-meta" style="margin-top:2px">Vendedor: '+(lider.vend||'–')+' · Doc: <span style="font-family:\'Syne\',sans-serif;color:var(--teal)">'+(lider.doc||'–')+'</span></div>'
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0;margin-left:12px">'
+          + '<span style="font-size:11.5px;font-weight:700;color:'+dColor+'">'+dLabel+'</span>'
+          + '<div style="font-size:10.5px;color:var(--texto-leve);margin-top:2px">'+priLabel(p)+'</div>'
+          + '<div style="margin-top:5px"><div class="progress-wrap" style="width:70px"><div class="progress-fill" style="width:'+Math.round(done/5*100)+'%;background:'+progressBg+'"></div></div></div>'
+          + '<div style="font-size:9.5px;color:var(--texto-leve)">'+done+'/5 · clique para '+(totalPax>1?'ver grupo':'detalhes')+'</div>'
+        + '</div>'
+      + '</div>'
+      // Checklist
+      + '<div class="cr-checks" onclick="event.stopPropagation()" style="margin-top:8px">'+checksHtml+'</div>'
+      // Expandable group
+      + '<div id="grupo-'+v+'" style="display:none;margin-top:12px;border-top:1px solid var(--borda);padding-top:12px">'
+        + '<div style="font-size:11px;font-weight:700;color:var(--texto-leve);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">👨‍👩‍👧 Passageiros desta venda</div>'
+        + paxListHtml
+        + '<div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">'
+          + '<span style="font-size:11px;font-weight:600;color:var(--texto-leve)">📞 Tel. principal:</span>'
+          + '<input type="text" placeholder="(31) 9xxxx-xxxx" value="'+telExibir+'" id="tel-venda-'+v+'"'
+          + ' style="width:150px;padding:5px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:12.5px;font-family:\'DM Sans\',sans-serif;outline:none"'
+          + ' onfocus="this.style.borderColor=\'var(--azul-medio)\'"'
+          + ' onblur="this.style.borderColor=\'var(--borda)\';salvarTelVenda('+v+',this.value)" />'
+          + waBtn
+          + '<button class="btn-ver" onclick="abrirModalEmb('+liderJson+')">Ver detalhes →</button>'
+        + '</div>'
+      + '</div>'
+    + '</div>';
+  }
+
+  var html = slice.length > 0
+    ? slice.map(function(g){ return buildCard(g); }).join('')
+    : '<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-title">Nenhuma venda encontrada</div></div>';
+
+  document.getElementById('emb-cli-cards').innerHTML = html;
+  document.getElementById('emb-cli-info').textContent = total+' venda'+(total!==1?'s':'')+' · '+filtered.length+' passageiro'+(filtered.length!==1?'s':'');
+  var pg = document.getElementById('emb-cli-pag');
+  var btns = '';
   if(pages>1){
-    btns+=\`<button class="page-btn" onclick="goEmbCliPage(\${Math.max(1,embCliPage-1)})">‹</button>\`;
-    for(let i=Math.max(1,embCliPage-2);i<=Math.min(pages,embCliPage+2);i++)
-      btns+=\`<button class="page-btn \${i===embCliPage?'active':''}" onclick="goEmbCliPage(\${i})">\${i}</button>\`;
-    btns+=\`<button class="page-btn" onclick="goEmbCliPage(\${Math.min(pages,embCliPage+1)})">›</button>\`;
+    btns += '<button class="page-btn" onclick="goEmbCliPage('+Math.max(1,embCliPage-1)+')">\u2039</button>';
+    for(var i=Math.max(1,embCliPage-2);i<=Math.min(pages,embCliPage+2);i++)
+      btns += '<button class="page-btn '+(i===embCliPage?'active':'')+'" onclick="goEmbCliPage('+i+')">'+i+'</button>';
+    btns += '<button class="page-btn" onclick="goEmbCliPage('+Math.min(pages,embCliPage+1)+')">\u203A</button>';
   }
   pg.innerHTML = btns;
 }
@@ -1783,4 +1797,3 @@ setInterval(verificarExpedientePainel,60000);
 </script>
 </body>
 </html>
-  
