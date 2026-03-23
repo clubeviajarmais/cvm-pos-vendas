@@ -153,10 +153,21 @@ const STATUS_MSG = {
   cancelado: 'Esta solicitação foi encerrada. Caso precise de ajuda, abra uma nova solicitação.',
 };
 
-const _sbPortal = window.supabase.createClient(
-  'https://chbrdzzpypvwfpqonfqs.supabase.co',
-  'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij'
-);
+let _sbPortal = null;
+function getSBPortal() {
+  if (!_sbPortal) {
+    try {
+      const lib = window.supabase || (typeof supabaseJs !== 'undefined' ? supabaseJs : null);
+      if (lib && lib.createClient) {
+        _sbPortal = lib.createClient(
+          'https://chbrdzzpypvwfpqonfqs.supabase.co',
+          'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij'
+        );
+      }
+    } catch(e) { console.warn('Supabase portal init:', e); }
+  }
+  return _sbPortal;
+}
 
 async function buscarProtocolo() {
   const proto = document.getElementById('proto-input').value.trim().toUpperCase();
@@ -165,7 +176,7 @@ async function buscarProtocolo() {
   
   res.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7280;font-size:13px">🔍 Consultando...</div>';
   
-  const { data, error } = await _sbPortal.from('solicitacoes').select('*').eq('protocolo', proto).single();
+  const { data, error } = await getSBPortal().from('solicitacoes').select('*').eq('protocolo', proto).single();
   
   if (error || !data) {
     res.innerHTML = '<div class="res-erro">Protocolo <strong>' + proto + '</strong> não encontrado.<br><span style="font-size:12px">Verifique se digitou corretamente ou entre em contato pelo WhatsApp.</span></div>';
