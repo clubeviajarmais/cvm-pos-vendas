@@ -1110,7 +1110,7 @@ function verificarExpediente() {
 
 // ─── SUPABASE CONFIG ───────────────────────────────────────────
 const CVM_SUPA_URL = 'https://chbrdzzpypvwfpqonfqs.supabase.co';
-const CVM_SUPA_KEY = 'sb_publishable_cG7kdMSBRAnADtwQdqTHWw_eF8mZ0ij';
+const CVM_SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoYnJkenpweXB2d2ZwcW9uZnFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzc4OTgsImV4cCI6MjA4ODY1Mzg5OH0.0xflWMXngRDvffTU1s9cpbrrvDZssOrhy9F3LJ0zJHk';
 let _cvmSbClient = null;
 function getSB() {
   if (!_cvmSbClient) {
@@ -1560,10 +1560,20 @@ async function enviarFormulario() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
-    alert('Erro ao enviar. Tente novamente.');
+    console.error('Erro Supabase:', err);
     btn.disabled = false;
     btnText.textContent = 'Abrir Solicitação';
     spinner.style.display = 'none';
+    let errBanner = document.getElementById('erro-envio-banner');
+    if (!errBanner) {
+      errBanner = document.createElement('div');
+      errBanner.id = 'erro-envio-banner';
+      errBanner.style.cssText = 'background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;';
+      errBanner.innerHTML = '<span style="font-size:20px;flex-shrink:0;">⚠️</span><div><div style="font-weight:700;color:#dc2626;font-size:14px;margin-bottom:3px;">Erro ao registrar solicitação</div><div style="font-size:13px;color:#7f1d1d;line-height:1.5;">Não foi possível enviar no momento. Tente novamente. Se persistir, ligue: <strong>(31) 3774-1710</strong>.</div></div>';
+      btn.parentNode.insertBefore(errBanner, btn);
+    }
+    errBanner.style.display = 'flex';
+    errBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 
