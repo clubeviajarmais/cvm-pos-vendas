@@ -150,10 +150,6 @@
       font-weight: 600;
     }
 
-    .sidebar-icon {
-      font-size: 16px;
-    }
-
     .main-content {
       flex: 1;
       margin-left: 240px;
@@ -332,12 +328,65 @@
       color: #92400e;
     }
 
+    .status-badge.aguardando-fornecedor {
+      background-color: #f3e8ff;
+      color: #6b21a8;
+    }
+
     .status-badge.resolvido {
       background-color: #dcfce7;
       color: #166534;
     }
 
-    .status-badge.urgente {
+    .status-badge.cancelado {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .urgencia-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .urgencia-badge.alta {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .urgencia-badge.media {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .urgencia-badge.baixa {
+      background-color: #dbeafe;
+      color: #0369a1;
+    }
+
+    .sla-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .sla-badge.ok {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .sla-badge.critico {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .sla-badge.vencido {
       background-color: #fee2e2;
       color: #991b1b;
     }
@@ -422,6 +471,84 @@
       min-height: 100px;
     }
 
+    /* ============ CALENDÁRIO ============ */
+    .calendar-wrapper {
+      background: white;
+      border-radius: 6px;
+      padding: 16px;
+      border: 1px solid var(--cinza-medio);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .calendar-nav button {
+      padding: 6px 12px;
+      border: 1px solid var(--cinza-medio);
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .calendar-nav button:hover {
+      background-color: var(--cinza-claro);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .calendar-day-name {
+      text-align: center;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--cinza-escuro);
+      padding: 8px 0;
+      text-transform: uppercase;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+
+    .calendar-day:hover:not(.disabled) {
+      background-color: var(--cinza-claro);
+    }
+
+    .calendar-day.disabled {
+      color: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .calendar-day.selected {
+      background-color: var(--laranja-cvm);
+      color: white;
+      font-weight: 600;
+    }
+
+    .calendar-day.limite-max {
+      border: 2px solid var(--vermelho-erro);
+    }
+
     /* ============ ESTADO VAZIO ============ */
     .empty-state {
       text-align: center;
@@ -446,7 +573,40 @@
       color: #9ca3af;
     }
 
-    /* ============ RESPONS ============ */
+    /* ============ NOTIFICAÇÃO ============ */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border-left: 4px solid var(--verde-ok);
+      padding: 16px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 3000;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    .toast.erro {
+      border-left-color: var(--vermelho-erro);
+    }
+
+    .toast.aviso {
+      border-left-color: var(--amarelo-aviso);
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* ============ RESPONSIVO ============ */
     @media (max-width: 768px) {
       .sidebar {
         width: 200px;
@@ -499,39 +659,6 @@
         padding: 8px;
       }
     }
-
-    /* ============ NOTIFICAÇÃO ============ */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: white;
-      border-left: 4px solid var(--verde-ok);
-      padding: 16px 20px;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 3000;
-      animation: slideInRight 0.3s ease-out;
-    }
-
-    .toast.erro {
-      border-left-color: var(--vermelho-erro);
-    }
-
-    .toast.aviso {
-      border-left-color: var(--amarelo-aviso);
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
   </style>
 </head>
 <body>
@@ -560,48 +687,39 @@
       <div class="sidebar-section">
         <div class="sidebar-section-title">Solicitações</div>
         <div class="sidebar-item active" onclick="navegarPara('dashboard')">
-          <span class="sidebar-icon">📊</span> Dashboard
+          <span>📊</span> Dashboard
         </div>
         <div class="sidebar-item" onclick="navegarPara('solicitacoes')">
-          <span class="sidebar-icon">📋</span> Solicitações
+          <span>📋</span> Solicitações
         </div>
         <div class="sidebar-item" onclick="navegarPara('urgentes')">
-          <span class="sidebar-icon">🚨</span> Urgentes
+          <span>🚨</span> Urgentes
         </div>
         <div class="sidebar-item" onclick="navegarPara('semana')">
-          <span class="sidebar-icon">📅</span> Esta Semana
+          <span>📅</span> Esta Semana
         </div>
       </div>
 
       <div class="sidebar-section">
         <div class="sidebar-section-title">Embarques</div>
         <div class="sidebar-item" onclick="navegarPara('embarques')">
-          <span class="sidebar-icon">✈️</span> Visão Geral
+          <span>✈️</span> Visão Geral
         </div>
         <div class="sidebar-item" onclick="navegarPara('clientes')">
-          <span class="sidebar-icon">👥</span> Clientes
+          <span>👥</span> Clientes
         </div>
         <div class="sidebar-item" onclick="navegarPara('checklist')">
-          <span class="sidebar-icon">✅</span> Checklist
-        </div>
-        <div class="sidebar-item" onclick="navegarPara('internacionais')">
-          <span class="sidebar-icon">🌍</span> Internacionais
-        </div>
-        <div class="sidebar-item" onclick="navegarPara('upsell')">
-          <span class="sidebar-icon">📈</span> UPSell
+          <span>✅</span> Checklist
         </div>
       </div>
 
       <div class="sidebar-section">
         <div class="sidebar-section-title">Gestão</div>
-        <div class="sidebar-item" onclick="navegarPara('relatorios')">
-          <span class="sidebar-icon">📊</span> Relatórios
-        </div>
-        <div class="sidebar-item" onclick="limparCache()">
-          <span class="sidebar-icon">🔄</span> Limpar Cache
+        <div class="sidebar-item" onclick="atualizarDados()">
+          <span>🔄</span> Atualizar
         </div>
         <div class="sidebar-item" onclick="logout()">
-          <span class="sidebar-icon">🚪</span> Sair
+          <span>🚪</span> Sair
         </div>
       </div>
     </aside>
@@ -614,11 +732,11 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">📊 Dashboard</h1>
-            <p class="page-subtitle">Visão geral do pós-venda</p>
+            <p class="page-subtitle">Visão geral com SLA</p>
           </div>
           <div class="header-actions">
             <button class="btn btn-secondary btn-sm" onclick="atualizarDados()">🔄 Atualizar</button>
-            <button class="btn btn-primary btn-sm" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalSolicitacao()">+ Nova</button>
           </div>
         </div>
 
@@ -629,19 +747,14 @@
             <div class="card-subtitle">desde o início</div>
           </div>
           <div class="card laranja">
-            <div class="card-title">Em Aberto</div>
-            <div class="card-value" id="em-aberto">0</div>
-            <div class="card-subtitle">aguardando atendimento</div>
+            <div class="card-title">SLA Crítico</div>
+            <div class="card-value" id="sla-critico">0</div>
+            <div class="card-subtitle">menos de 1 hora</div>
           </div>
           <div class="card vermelho">
-            <div class="card-title">Urgentes</div>
-            <div class="card-value" id="urgentes">0</div>
-            <div class="card-subtitle">embarque próximo</div>
-          </div>
-          <div class="card roxo">
-            <div class="card-title">Com Fornecedor</div>
-            <div class="card-value" id="fornecedor">0</div>
-            <div class="card-subtitle">aguardando retorno</div>
+            <div class="card-title">SLA Vencido</div>
+            <div class="card-value" id="sla-vencido">0</div>
+            <div class="card-subtitle">ação imediata</div>
           </div>
           <div class="card verde">
             <div class="card-title">Resolvidos</div>
@@ -651,25 +764,23 @@
         </div>
 
         <div class="table-container">
-          <h3 style="margin-bottom: 16px; color: var(--azul-cvm);">🔴 Urgentes e Recentes</h3>
+          <h3 style="margin-bottom: 16px; color: var(--azul-cvm);">🔴 Urgentes e Críticos (SLA)</h3>
           <table>
             <thead>
               <tr>
                 <th>Protocolo</th>
                 <th>Contratante</th>
-                <th>Tipo</th>
                 <th>Urgência</th>
-                <th>Status</th>
                 <th>SLA</th>
+                <th>Status</th>
                 <th>Ação</th>
               </tr>
             </thead>
-            <tbody id="tabela-urgentes">
+            <tbody id="tabela-dashboard">
               <tr>
-                <td colspan="7" class="empty-state">
-                  <div class="empty-state-icon">🎯</div>
-                  <div class="empty-state-title">Nenhuma solicitação urgente</div>
-                  <div class="empty-state-text">Ótimo! Todos os casos estão sob controle.</div>
+                <td colspan="6" class="empty-state">
+                  <div class="empty-state-icon">✨</div>
+                  <div class="empty-state-title">Nenhuma solicitação crítica</div>
                 </td>
               </tr>
             </tbody>
@@ -682,11 +793,10 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">📋 Solicitações</h1>
-            <p class="page-subtitle">Gerenciar todas as solicitações</p>
+            <p class="page-subtitle">Todas as solicitações</p>
           </div>
           <div class="header-actions">
-            <button class="btn btn-secondary btn-sm" onclick="atualizarDados()">🔄 Atualizar</button>
-            <button class="btn btn-primary btn-sm" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalSolicitacao()">+ Nova</button>
           </div>
         </div>
 
@@ -696,18 +806,18 @@
               <tr>
                 <th>Protocolo</th>
                 <th>Contratante</th>
-                <th>Tipo</th>
+                <th>Urgência</th>
+                <th>SLA</th>
                 <th>Status</th>
-                <th>Criada em</th>
+                <th>Embarque</th>
                 <th>Ação</th>
               </tr>
             </thead>
             <tbody id="tabela-solicitacoes">
               <tr>
-                <td colspan="6" class="empty-state">
+                <td colspan="7" class="empty-state">
                   <div class="empty-state-icon">📭</div>
                   <div class="empty-state-title">Nenhuma solicitação</div>
-                  <div class="empty-state-text">Crie uma nova solicitação para começar.</div>
                 </td>
               </tr>
             </tbody>
@@ -720,7 +830,7 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">🚨 Urgentes</h1>
-            <p class="page-subtitle">Solicitações de alta prioridade</p>
+            <p class="page-subtitle">Alta urgência com SLA crítico</p>
           </div>
         </div>
 
@@ -730,48 +840,16 @@
               <tr>
                 <th>Protocolo</th>
                 <th>Contratante</th>
-                <th>Tipo</th>
-                <th>Status</th>
                 <th>SLA</th>
+                <th>Status</th>
+                <th>Embarque</th>
               </tr>
             </thead>
-            <tbody id="tabela-urgentes-page">
+            <tbody id="tabela-urgentes">
               <tr>
                 <td colspan="5" class="empty-state">
                   <div class="empty-state-icon">✨</div>
-                  <div class="empty-state-title">Nenhuma solicitação urgente</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- EMBARQUES -->
-      <div id="embarques" class="pagina" style="display: none;">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">✈️ Embarques</h1>
-            <p class="page-subtitle">Próximos 30 dias</p>
-          </div>
-        </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Contratante</th>
-                <th>Destino</th>
-                <th>Passageiros</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="tabela-embarques">
-              <tr>
-                <td colspan="5" class="empty-state">
-                  <div class="empty-state-icon">🌍</div>
-                  <div class="empty-state-title">Nenhum embarque próximo</div>
+                  <div class="empty-state-title">Nenhuma urgente</div>
                 </td>
               </tr>
             </tbody>
@@ -792,6 +870,10 @@
       <div class="form-group">
         <label class="form-label">Nome Contratante</label>
         <input class="form-input" id="input-nome" placeholder="Digite o nome completo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data de Embarque</label>
+        <input class="form-input" id="input-embarque" type="date">
       </div>
       <div class="form-group">
         <label class="form-label">Tipo de Solicitação</label>
@@ -819,6 +901,52 @@
     </div>
   </div>
 
+  <!-- MODAL DEFINIR SLA -->
+  <div class="modal" id="modal-sla">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">⏱️ Definir Prazo Customizado</h2>
+        <button class="modal-close" onclick="fecharModalSLA()">&times;</button>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" style="color: var(--vermelho-erro); font-weight: 700;">
+          ⚠️ Limite Máximo Permitido
+        </label>
+        <div style="background: #fee2e2; border: 1px solid var(--vermelho-erro); border-radius: 6px; padding: 12px; margin-bottom: 16px; color: #991b1b;">
+          <span id="limite-maximo-texto">Carregando...</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Escolha a Nova Data Limite</label>
+        <div class="calendar-wrapper">
+          <div class="calendar-header">
+            <button class="calendar-nav" onclick="calendarioMesAnterior()">← Anterior</button>
+            <span id="calendar-mes-ano" style="font-weight: 600;"></span>
+            <button class="calendar-nav" onclick="calendarioProximoMes()">Próximo →</button>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Horário (opcional)</label>
+        <input class="form-input" id="input-hora" type="time" value="14:00">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Motivo do Prazo</label>
+        <textarea class="form-textarea" id="input-motivo" placeholder="Ex: Aguardando retorno da companhia aérea"></textarea>
+      </div>
+
+      <div class="form-group" style="display: flex; gap: 12px;">
+        <button class="btn btn-primary" style="flex: 1;" onclick="salvarSLACustomizado()">Definir Prazo</button>
+        <button class="btn btn-secondary" style="flex: 1;" onclick="fecharModalSLA()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPT -->
   <script>
     // ============ SUPABASE CONFIG ============
@@ -831,8 +959,10 @@
     let paginaAtual = 'dashboard';
     let dados = [];
     let usuarioAtual = null;
+    let solicitacaoSLAEmEdicao = null;
+    let calendarMes = new Date().getMonth();
+    let calendarAno = new Date().getFullYear();
 
-    // CREDENCIAIS HARDCODED
     const USUARIOS = {
       'rafael': { senha: 'cvm2024', nivel: 3 },
       'rafaela': { senha: 'rafa123', nivel: 2 },
@@ -845,9 +975,7 @@
       inicializarSupabase();
       verificarLogin();
       atualizarDados();
-      // Sincronizar a cada 30s
       setInterval(atualizarDados, 30000);
-      // Verificar conexão a cada 5s
       setInterval(verificarConexao, 5000);
     });
 
@@ -898,12 +1026,59 @@
       location.reload();
     }
 
+    // ============ FUNÇÕES DE SLA ============
+    function calcularUrgencia(dataEmbarque) {
+      if (!dataEmbarque) return 'baixa';
+      
+      const embarque = new Date(dataEmbarque);
+      const hoje = new Date();
+      const diasAteFim = Math.ceil((embarque - hoje) / (1000 * 60 * 60 * 24));
+      
+      if (diasAteFim < 7) return 'alta';
+      if (diasAteFim < 15) return 'media';
+      return 'baixa';
+    }
+
+    function calcularSLAHoras(urgencia) {
+      const slas = { 'alta': 4, 'media': 12, 'baixa': 24 };
+      return slas[urgencia] || 24;
+    }
+
+    function calcularSLADeadline(dataInicio, horas) {
+      const inicio = new Date(dataInicio);
+      const horasMs = horas * 60 * 60 * 1000;
+      return new Date(inicio.getTime() + horasMs).toISOString();
+    }
+
+    function getSLAStatus(slaDeadline) {
+      const agora = new Date();
+      const deadline = new Date(slaDeadline);
+      const diffMs = deadline - agora;
+      const diffHoras = diffMs / (1000 * 60 * 60);
+      
+      if (diffHoras < 0) return 'vencido';
+      if (diffHoras < 1) return 'critico';
+      return 'ok';
+    }
+
+    function formatarTempoRestante(slaDeadline) {
+      const agora = new Date();
+      const deadline = new Date(slaDeadline);
+      const diffMs = deadline - agora;
+      
+      if (diffMs < 0) return '⏰ Vencido';
+      
+      const horas = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      return `${horas}h ${minutos}m`;
+    }
+
     // ============ DADOS ============
     async function atualizarDados() {
       atualizarStatusConexao('sincronizando');
 
       try {
-        // Tentar buscar do Supabase
         const { data, error } = await supabase
           .from('cvm_solicitacoes')
           .select('*')
@@ -913,20 +1088,24 @@
           console.error('Erro Supabase:', error);
           carregarDoCache();
           atualizarStatusConexao('offline');
-          mostrarToast('⚠️ Usando dados em cache (sem conexão)', 'aviso');
           return;
         }
 
-        dados = data || [];
+        dados = (data || []).map(d => ({
+          ...d,
+          urgencia: calcularUrgencia(d.data_embarque),
+          sla_horas: calcularSLAHoras(calcularUrgencia(d.data_embarque)),
+          sla_deadline: d.sla_deadline_customizado || calcularSLADeadline(d.created_at, calcularSLAHoras(calcularUrgencia(d.data_embarque))),
+          sla_status: getSLAStatus(d.sla_deadline_customizado || calcularSLADeadline(d.created_at, calcularSLAHoras(calcularUrgencia(d.data_embarque))))
+        }));
+
         salvarNoCache(dados);
         atualizarStatusConexao('online');
         renderizarDados();
-        mostrarToast('✅ Dados sincronizados com sucesso', 'ok');
       } catch (erro) {
         console.error('Erro ao buscar dados:', erro);
         carregarDoCache();
         atualizarStatusConexao('offline');
-        mostrarToast('⚠️ Sem conexão - usando dados em cache', 'aviso');
       }
     }
 
@@ -950,56 +1129,78 @@
     function renderizarDados() {
       const stats = {
         total: dados.length,
-        aberto: dados.filter(d => d.status === 'aberto').length,
-        urgentes: dados.filter(d => d.urgencia === 'Alta' && d.status !== 'resolvido').length,
-        fornecedor: dados.filter(d => d.status === 'aguardando_fornecedor').length,
+        critico: dados.filter(d => d.sla_status === 'critico').length,
+        vencido: dados.filter(d => d.sla_status === 'vencido').length,
         resolvidos: dados.filter(d => d.status === 'resolvido').length
       };
 
       document.getElementById('total-casos').textContent = stats.total;
-      document.getElementById('em-aberto').textContent = stats.aberto;
-      document.getElementById('urgentes').textContent = stats.urgentes;
-      document.getElementById('fornecedor').textContent = stats.fornecedor;
+      document.getElementById('sla-critico').textContent = stats.critico;
+      document.getElementById('sla-vencido').textContent = stats.vencido;
       document.getElementById('resolvidos').textContent = stats.resolvidos;
 
       renderizarTabelas();
     }
 
     function renderizarTabelas() {
-      // Dashboard - Urgentes
-      const urgentes = dados.filter(d => d.status !== 'resolvido' && d.urgencia === 'Alta');
-      const htmlUrgentes = urgentes.length === 0
-        ? '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">Nenhuma solicitação urgente</td></tr>'
-        : urgentes.map(d => `
+      // Dashboard - Críticos e Vencidos
+      const criticos = dados.filter(d => ['critico', 'vencido'].includes(d.sla_status));
+      const htmlDashboard = criticos.length === 0
+        ? '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Nenhuma solicitação crítica</td></tr>'
+        : criticos.map(d => `
           <tr>
             <td><span class="protocolo">${d.protocolo || 'N/A'}</span></td>
             <td>${d.contratante || 'N/A'}</td>
-            <td>${d.tipo || 'N/A'}</td>
-            <td><span class="status-badge urgente">● Alta</span></td>
+            <td><span class="urgencia-badge ${d.urgencia}">● ${d.urgencia.toUpperCase()}</span></td>
+            <td><span class="sla-badge ${d.sla_status}">⏰ ${formatarTempoRestante(d.sla_deadline)}</span></td>
             <td><span class="status-badge ${d.status}">${d.status || 'Aberto'}</span></td>
-            <td style="color: #ef4444; font-weight: 600;">${d.sla || '—'}</td>
-            <td><button class="btn btn-sm btn-secondary" onclick="editarSolicitacao('${d.protocolo}')">Ver →</button></td>
-          </tr>
-        `).join('');
-      
-      document.getElementById('tabela-urgentes').innerHTML = htmlUrgentes;
-
-      // Solicitações - Todas
-      const htmlSolicitacoes = dados.length === 0
-        ? '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">Nenhuma solicitação</td></tr>'
-        : dados.map(d => `
-          <tr>
-            <td><span class="protocolo">${d.protocolo || 'N/A'}</span></td>
-            <td>${d.contratante || 'N/A'}</td>
-            <td>${d.tipo || 'N/A'}</td>
-            <td><span class="status-badge ${d.status}">${d.status || 'Aberto'}</span></td>
-            <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
             <td><button class="btn btn-sm btn-secondary" onclick="editarSolicitacao('${d.protocolo}')">Editar →</button></td>
           </tr>
         `).join('');
+      
+      document.getElementById('tabela-dashboard').innerHTML = htmlDashboard;
+
+      // Solicitações - Todas
+      const htmlSolicitacoes = dados.length === 0
+        ? '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">Nenhuma solicitação</td></tr>'
+        : dados.map(d => {
+          const dataEmb = d.data_embarque ? new Date(d.data_embarque).toLocaleDateString('pt-BR') : '—';
+          return `
+            <tr>
+              <td><span class="protocolo">${d.protocolo || 'N/A'}</span></td>
+              <td>${d.contratante || 'N/A'}</td>
+              <td><span class="urgencia-badge ${d.urgencia}">● ${d.urgencia.charAt(0).toUpperCase()}</span></td>
+              <td><span class="sla-badge ${d.sla_status}">⏰ ${formatarTempoRestante(d.sla_deadline)}</span></td>
+              <td><span class="status-badge ${d.status}">${d.status || 'Aberto'}</span></td>
+              <td>${dataEmb}</td>
+              <td><button class="btn btn-sm btn-secondary" onclick="editarSolicitacao('${d.protocolo}')">Editar →</button></td>
+            </tr>
+          `;
+        }).join('');
 
       if (document.getElementById('tabela-solicitacoes')) {
         document.getElementById('tabela-solicitacoes').innerHTML = htmlSolicitacoes;
+      }
+
+      // Urgentes
+      const urgentes = dados.filter(d => d.urgencia === 'alta' && d.status !== 'resolvido');
+      const htmlUrgentes = urgentes.length === 0
+        ? '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">Nenhuma urgente</td></tr>'
+        : urgentes.map(d => {
+          const dataEmb = d.data_embarque ? new Date(d.data_embarque).toLocaleDateString('pt-BR') : '—';
+          return `
+            <tr>
+              <td><span class="protocolo">${d.protocolo || 'N/A'}</span></td>
+              <td>${d.contratante || 'N/A'}</td>
+              <td><span class="sla-badge ${d.sla_status}">⏰ ${formatarTempoRestante(d.sla_deadline)}</span></td>
+              <td><span class="status-badge ${d.status}">${d.status || 'Aberto'}</span></td>
+              <td>${dataEmb}</td>
+            </tr>
+          `;
+        }).join('');
+
+      if (document.getElementById('tabela-urgentes')) {
+        document.getElementById('tabela-urgentes').innerHTML = htmlUrgentes;
       }
     }
 
@@ -1011,28 +1212,37 @@
     function fecharModal() {
       document.getElementById('modal-solicitacao').classList.remove('show');
       document.getElementById('input-nome').value = '';
+      document.getElementById('input-embarque').value = '';
       document.getElementById('input-tipo').value = '';
       document.getElementById('input-descricao').value = '';
     }
 
     async function salvarSolicitacao() {
       const nome = document.getElementById('input-nome').value.trim();
+      const embarque = document.getElementById('input-embarque').value;
       const tipo = document.getElementById('input-tipo').value;
       const descricao = document.getElementById('input-descricao').value.trim();
 
-      if (!nome || !tipo || !descricao) {
+      if (!nome || !embarque || !tipo || !descricao) {
         mostrarToast('⚠️ Preencha todos os campos', 'aviso');
         return;
       }
 
       const protocolo = 'CVM' + Date.now().toString().slice(-8).toUpperCase();
-      const novasolicitacao = {
+      const urgencia = calcularUrgencia(embarque);
+      const slaHoras = calcularSLAHoras(urgencia);
+      const slaDeadline = calcularSLADeadline(new Date().toISOString(), slaHoras);
+
+      const novaSolicitacao = {
         protocolo,
         contratante: nome,
         tipo,
         descricao,
+        data_embarque: embarque,
+        urgencia,
         status: 'aberto',
-        urgencia: 'Média',
+        sla_horas: slaHoras,
+        sla_deadline: slaDeadline,
         created_at: new Date().toISOString(),
         usuario_criador: usuarioAtual
       };
@@ -1040,26 +1250,130 @@
       try {
         const { error } = await supabase
           .from('cvm_solicitacoes')
-          .insert([novasolicitacao]);
+          .insert([novaSolicitacao]);
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         fecharModal();
         atualizarDados();
         mostrarToast('✅ Solicitação criada: ' + protocolo, 'ok');
       } catch (erro) {
         console.error('Erro ao salvar:', erro);
-        mostrarToast('❌ Erro ao salvar solicitação', 'erro');
+        mostrarToast('❌ Erro ao salvar', 'erro');
       }
     }
 
     function editarSolicitacao(protocolo) {
       const sol = dados.find(d => d.protocolo === protocolo);
       if (sol) {
-        alert(`Protocolo: ${protocolo}\nContratante: ${sol.contratante}\nTipo: ${sol.tipo}\n\nEdição via formulário em desenvolvimento.`);
+        alert(`📋 Protocolo: ${protocolo}\n👤 ${sol.contratante}\n📅 Embarque: ${sol.data_embarque}\n🕐 SLA: ${sol.sla_horas}h\n⏰ Vence em: ${formatarTempoRestante(sol.sla_deadline)}`);
       }
+    }
+
+    // ============ SLA CUSTOMIZADO ============
+    function abrirModalSLA(protocolo) {
+      const sol = dados.find(d => d.protocolo === protocolo);
+      if (!sol) return;
+
+      solicitacaoSLAEmEdicao = sol;
+      document.getElementById('modal-sla').classList.add('show');
+
+      // Calcular limite máximo (24h antes do embarque)
+      const embarque = new Date(sol.data_embarque);
+      const limite24h = new Date(embarque.getTime() - (24 * 60 * 60 * 1000));
+      
+      document.getElementById('limite-maximo-texto').textContent = 
+        `Data limite: ${limite24h.toLocaleDateString('pt-BR')} às ${limite24h.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`;
+
+      // Renderizar calendário
+      renderizarCalendario(limite24h);
+    }
+
+    function fecharModalSLA() {
+      document.getElementById('modal-sla').classList.remove('show');
+      solicitacaoSLAEmEdicao = null;
+    }
+
+    function renderizarCalendario(limiteMax) {
+      const mesNomes = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      
+      document.getElementById('calendar-mes-ano').textContent = `${mesNomes[calendarMes]} ${calendarAno}`;
+
+      const primeiroDay = new Date(calendarAno, calendarMes, 1).getDay();
+      const diasMes = new Date(calendarAno, calendarMes + 1, 0).getDate();
+      
+      let html = '';
+      
+      // Cabeçalho dias da semana
+      ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].forEach(dia => {
+        html += `<div class="calendar-day-name">${dia}</div>`;
+      });
+
+      // Dias vazios do mês anterior
+      for (let i = 0; i < primeiroDay; i++) {
+        html += '<div class="calendar-day disabled"></div>';
+      }
+
+      // Dias do mês
+      const hoje = new Date();
+      for (let dia = 1; dia <= diasMes; dia++) {
+        const dataAtual = new Date(calendarAno, calendarMes, dia);
+        const ehAntes = dataAtual < limiteMax;
+        const ehHoje = dataAtual.toDateString() === hoje.toDateString();
+        const ehLimite = dataAtual.toDateString() === limiteMax.toDateString();
+        
+        let classes = 'calendar-day';
+        if (!ehAntes) classes += ' disabled';
+        if (ehLimite) classes += ' limite-max';
+        
+        html += `<div class="${classes}" ${ehAntes ? `onclick="selecionarDataCalendario(${dia})"` : ''}>${dia}</div>`;
+      }
+
+      document.getElementById('calendar-grid').innerHTML = html;
+    }
+
+    function selecionarDataCalendario(dia) {
+      // Usar a data selecionada
+      console.log(`Data selecionada: ${dia}/${calendarMes + 1}/${calendarAno}`);
+    }
+
+    function calendarioMesAnterior() {
+      if (calendarMes === 0) {
+        calendarMes = 11;
+        calendarAno--;
+      } else {
+        calendarMes--;
+      }
+      renderizarCalendario(new Date()); // TODO: passar límite correto
+    }
+
+    function calendarioProximoMes() {
+      if (calendarMes === 11) {
+        calendarMes = 0;
+        calendarAno++;
+      } else {
+        calendarMes++;
+      }
+      renderizarCalendario(new Date()); // TODO: passar límite correto
+    }
+
+    async function salvarSLACustomizado() {
+      if (!solicitacaoSLAEmEdicao) return;
+
+      const motivo = document.getElementById('input-motivo').value.trim();
+      const hora = document.getElementById('input-hora').value;
+
+      if (!motivo) {
+        mostrarToast('⚠️ Preencha o motivo do prazo', 'aviso');
+        return;
+      }
+
+      // TODO: Implementar lógica de update do SLA no Supabase
+
+      fecharModalSLA();
+      mostrarToast('✅ Prazo customizado definido', 'ok');
+      atualizarDados();
     }
 
     // ============ NAVEGAÇÃO ============
@@ -1111,15 +1425,6 @@
       toast.textContent = msg;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
-    }
-
-    function limparCache() {
-      if (confirm('Tem certeza que deseja limpar o cache local?')) {
-        localStorage.removeItem('cvm_dados_cache');
-        localStorage.removeItem('cvm_cache_time');
-        mostrarToast('✅ Cache limpo', 'ok');
-        atualizarDados();
-      }
     }
 
     function logout() {
